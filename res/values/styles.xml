@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/**
+ * Copyright (C) 2010  Ulysses Levy
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @author Ulysses Levy
+ * @version 1.0
+ */
+-->
+<resources>
+    <!-- ( http://developer.android.com/resources/samples/ApiDemos/res/values/styles.html ) -->
+    <!-- item name="android:windowBackground">@drawable/translucent_background</item -->
+    <style name="Theme.Translucent" parent="android:style/Theme.Translucent">
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:colorForeground">#333333</item>
+        <item name="android:backgroundDimEnabled">true</item>
+        <item name="android:windowAnimationStyle">@null</item>
+    </style>
+    <style 
+        name="StyleA"
+        > 
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+    <style 
+        name="StyleB"
+        parent="@style/StyleA"
+        > 
+        <item name="android:textSize">18sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:typeface">monospace</item>
+        <item name="android:layout_centerInParent">true</item>
+        <item name="android:layout_gravity">center_vertical|right</item>
+        <item name="android:gravity">right</item>
+    </style>
+    <style
+        name="StyleBB"
+        parent="@style/StyleB"
+        >
+        <item name="android:textSize">14sp</item>
+        
+    </style>
+    <style
+        name="StyleD"
+        parent="@style/StyleA"
+        >
+        <item name="android:textSize">18sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+    <style
+        name="StyleDD"
+        parent="@style/StyleD"
+        >
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+    <style
+        name="StyleCC"
+        parent="@style/StyleC"
+        >
+        <item name="android:textSize">18sp</item>
+    </style>
+    <style
+        name="StyleE"
+        parent="@style/StyleD"
+        >
+        <item name="android:textSize">8sp</item>
+    </style>
+    <style 
+        name="StyleC"
+        parent="@style/StyleA"
+        > 
+        <item name="android:textSize">36sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:layout_centerInParent">true</item>
+        <item name="android:layout_gravity">center_vertical|center_horizontal</item>
+        <item name="android:gravity">center</item>
+        <item name="android:layout_centerHorizontal">true</item>
+    </style>    
+    <style 
+        name="StyleButton"
+        > 
+        <!-- centerCrop vs center -->
+        <item name="android:scaleType">center</item>
+        <item name="android:layout_width">72dp</item>
+        <item name="android:layout_height">72dp</item>
+        <!-- item name="android:padding">24dp</item-->
+        <item name="android:layout_alignParentBottom">true</item>
+        <item name="android:layout_marginBottom">12px</item>
+        <item name="android:layout_marginLeft">8dip</item>
+        <item name="android:layout_marginRight">8dip</item>
+        <!-- item name="android:layout_marginTop">10dip</item -->
+    </style>   
+</resources>

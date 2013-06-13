@@ -1,0 +1,28 @@
+..notes, uly, sept2012..
+
+get android sdk
+run "android" and downlaod platform-tools for api "8" for 2.2 (previously ran api 7 aka 2.1).
+untar and setup PATH against tools and platform-tools.
+for running arch, setup multilib and whatever (see https://wiki.archlinux.org/index.php/Android#Manual_installation).
+
+setup dev build:
+android update project --target 1 --path ~/.../nextboat/
+edit name to be lowercase "NextBoat" -> "nextboat"
+see http://stackoverflow.com/questions/5572304/problem-building-android-sample-project
+cd nextboat/ && ant debug
+adb install bin/nextboat-debug.apk
+adb install -r bin/nextboat-debug.apk   # -r for reinstall
+
+how to log:
+adb devices # make sure usb debugging is turned on
+adb logcat
+
+
+release:
+$ ant release
+$ jarsigner -verbose -sigalg MD5withRSA -digestalg SHA1 -keystore my-release-key.keystore bin/nextboat-release-unsigned.apk alias_name
+IHateGoogle123!@#
+$ zipalign -v 4 your_project_name-unaligned.apk your_project_name.apk
+
+
+https://play.google.com/apps/publish/Home?dev_acc=06121908644891098342
