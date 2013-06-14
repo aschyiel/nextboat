@@ -71,383 +71,303 @@ import java.util.regex.Pattern;
 
 public class NextBoat extends Activity
 {
-    public static final String TAG = "NextBoat";
+  public static final String TAG = "NextBoat";
 
-    //..contains both destinations..
-    private String mFerryScheduleHtmlString;
+  //..contains both destinations..
+  private String mFerryScheduleHtmlString;
 
-    //..ie
-    //.. "Leaving Seattle" ..
-    //.. "Leaving Bainbridge Island" ..
-    private String mFerryDestination;
-    private String mFerryPortOne;
-    private String mFerryPortTwo;
-    
-    private Boolean mTheme = false;
-    
-    private Boolean mDisableAutoLocation = false;
-    
-    private String mVesselWatchUrl;
-    private String mPortOneFerryCamUrl;
-    private String mPortTwoFerryCamUrl;
-    private String mFerryScheduleUrl;
-    private String mRegex;
-    private String mBulletinRegex;
-    
-    private String mSimpleDateFormatString = "hh:mm a, MMM-dd";
-    
-    private ArrayList<FerryObject> mFerryObjectArray;
-    private FerryObject mTargetBoat;
-    private FerryObject mNextBoat;
-    
-    private int mTargetBoatIndex;
-    
-    private TextView textView;
-    private TextView textViewLabel;
-    private TextView textViewChecked;
-    private TextView textViewDownloaded;
-    private TextView textViewDeparting;
-    
-    private SharedPreferences mSharedPreferences;
-    private LocationManager mLocationManager;
-    
-    private Button mButtonOne;
-    private Button mButtonTwo;
-    private Button mButtonThree;
+  /**
+  * The ferry's current destination.
+  *
+  * For Example:
+  * "Leaving Seattle"
+  * "Leaving Bainbridge Island"
+  */
+  private String _destination;
 
-    /** Called when the activity is first created. */
-    @Override
-    public void onCreate(Bundle savedInstanceState)
-    {
-        //..(http://www.stealthcopter.com/blog/2010/01/android-blurring-and-dimming-background-windows-from-dialogs/ )..
-        //setBlurFxn();
-        //
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.main);
-        
-        mFerryObjectArray = new ArrayList<FerryObject>();
-        
-        //..init..
-        mFerryDestination = mFerryPortOne;
-        
-        //..assign view vars (text, buttons, etc)..
-        _initViews();
-        
-        //..set rel. layout's background color..
-        _setupBackgroundColour();
-        
-        mLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        
-        setNextBoatDestinationText();
-    }
-    
-    //..how often do we download our html files?..
-    private int pHourlyUpdateInterval = 6;
-    
-    //
-    //..returns true if file doesn't exist or is out of date..
-    //
-    private boolean isDownloadNeeded()
-    {
-        //..if file doesn't exit or if it was last modified 6 hours ago..
-        File f = whichFile();
-        
-        //..if we do not have a file..
-        if ( !f.exists() )
-        {
-            return true;
-        }
-        //..TODO:..
-        //..else the file exists, and it is default 6 hours old..
-        else if ( ( f.exists() ) && ( ( System.currentTimeMillis() - f.lastModified() ) > ((long)1000*60*60* pHourlyUpdateInterval ) ) )
-        {
-            return true;
-        }
-        //..else the NextBoat.html file exists..
-        else
-        {
-            updateDownloadLatestText( whichFile().lastModified() );
-            setLastCheckedFxn();
-            return false;
-        }
-    }
-    
-    private void setNextBoatDestinationText()
-    {
-        final String zBoat = ( mTargetBoat != null ) ? "Target Boat" : "Next Boat" ;
-        textViewLabel.setText( zBoat + " : \n" + mFerryDestination );
-    }
-    
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.my_menu, menu);
-        return true;
-    }
+  /**
+  * The two terminals connecting the ferry route.
+  */
+  private String _destinationA;
+  private String _destinationB;
+  
+  private Boolean mTheme = false;
+  
+  private Boolean mDisableAutoLocation = false;
+  
+  private String mVesselWatchUrl;
+  private String mFerryScheduleUrl;
+  private String mBulletinRegex;
+  
+  private String mSimpleDateFormatString = "hh:mm a, MMM-dd";
+  
+  private ArrayList<FerryObject> mFerryObjectArray;
+  private FerryObject mTargetBoat;
+  private FerryObject mNextBoat;
+  
+  private int mTargetBoatIndex;
+  
+  private TextView textView;
+  private TextView textViewLabel;
+  private TextView textViewChecked;
+  private TextView textViewDownloaded;
+  private TextView textViewDeparting;
+  
+  private SharedPreferences mSharedPreferences;
+  
+  private Button mButtonOne;
+  private Button mButtonTwo;
+  private Button mButtonThree;
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle item selection
-        switch (item.getItemId()) {
-        case R.id.id_clear_target_boat:
-            clearTargetBoat();
-            return true;
-        case R.id.id_refresh:
-            refreshFxn();
-            return true;
-        case R.id.id_view_all:
-            launchScheduleListFxn();
-            return true;
-        case R.id.id_go_online:
-            goOnlineFxn();
-            return true;
-        case R.id.id_ferry_cam:
-            launchFerryCamFxn();
-            return true;
-        case R.id.id_download:
-            downloadLatest();
-            return true;
-        case R.id.id_vessel_watch:
-            vesselWatchFxn();
-            return true;
-        case R.id.id_go_alert:
-            goOnlineAlertFxn();
-            return true;
-        case R.id.id_view_alert_bulletin:
-            viewAlertBulletinDialog();
-            return true;
-        default:
-            return super.onOptionsItemSelected(item);
-        }
-    }
+  private TextView mBulletinTextView;
+  private int mBulletinLength;
+
+  //---------------------------------
+  //
+  // Public/Overriden Methods
+  //
+  //---------------------------------
+
+  /** Called when the activity is first created. */
+  @Override
+  public void onCreate( Bundle bundle )
+  {
+    super.onCreate( bundle );
+    setContentView( R.layout.main );
     
-    private void clearTargetBoat()
+    mFerryObjectArray = new ArrayList<FerryObject>();
+    
+    //..init..
+    _destination = _destinationA;
+    
+    _initView();
+  }
+
+  @Override
+  public boolean onCreateOptionsMenu( Menu menu )
+  {
+    MenuInflater inflater = getMenuInflater();
+    inflater.inflate( R.menu.my_menu, menu );
+    return true;
+  }
+
+  /**
+  * The user selected something from the nextboat options menu.
+  */
+  @Override
+  public boolean onOptionsItemSelected( MenuItem item ) {
+    // Handle item selection
+    switch ( item.getItemId() ) {
+    case R.id.id_refresh:
+      refreshFxn();
+      return true;
+    case R.id.id_view_all:
+      _showDepartures();
+      return true;
+    case R.id.id_go_online:
+      _showScheduleWebPage();
+      return true;
+    case R.id.id_ferry_cam:
+      _showFerryCam();
+      return true;
+    case R.id.id_vessel_watch:
+      _showVesselWatch();
+      return true;
+    case R.id.id_go_alert:
+      _showBulletinPage();
+      return true;
+    case R.id.id_view_alert_bulletin:
+      viewAlertBulletinDialog();
+      return true;
+    default:
+      return super.onOptionsItemSelected(item);
+    }
+  }
+
+  //..note: onResume() gets called immediately after onCreate..
+  @Override
+  protected void onResume()
+  {
+    super.onResume();
+    
+    _setupView();
+    
+    if ( isDownloadNeeded() )
     {
-        mTargetBoat = null;
-        mTargetBoatIndex = -1;
-        //updateTargetBoatText();
-        onResume();
+      refreshFxn();
+      return;
     }
     
-    //..note: onResume() gets called immediately after onCreate..
-    @Override
-    protected void onResume()
+    handleAutoLocation();
+    textView.setText( getNextFerry() );
+    setLastCheckedFxn();
+    readFerryBulletin();
+  }
+
+  //---------------------------------
+  //
+  // Private Methods
+  //
+  //---------------------------------
+
+  /**
+  * Returns true if the nextboat app needs to hit WSDOT
+  * for an updated copy of the schedule.
+  */
+  private boolean isDownloadNeeded()
+  {
+    // TODO
+    // Ask sqlite how old we are, and ask WSDOT how old thier copy is.
+    return false;
+  }
+
+
+  private void setNextBoatDestinationText()
+  {
+  }
+
+  private void refreshFxn()
+  {
+    if ( isDownloadNeeded() )
     {
-        super.onResume();
-        
-        final Boolean b = writeSharedPreferencesIfNeeded();
-        readSharedPreferences( mSharedPreferences );
-        
-        _setupTextColour();
-        
-        setupBackgroundColor();
-        
-        if (b || isDownloadNeeded() || PLEASE_REFRESH.equals( textViewDeparting.getText() ) )
-        {
-            //..shortcut if necessary..
-            //downloadLatest();
-            refreshFxn();
-            return;
-        }
-        
-        handleAutoLocation();
-        textView.setText( getNextFerry() );
-        setNextBoatDestinationText();
-        setLastCheckedFxn();
-        readFerryBulletin();
+      _download();
     }
     
-    private void refreshFxn()
-    {   
-        
-        final Boolean b = writeSharedPreferencesIfNeeded();
-        readSharedPreferences( mSharedPreferences );
-        
-        if (b || isDownloadNeeded() )
-        {
-            downloadLatest();
-        }
-        
-        handleAutoLocation();
-        
-        //..and re-read our file..
-        initNextFerry();
-        //..actual refresh part..
-        textView.setText( getNextFerry() );
-        setNextBoatDestinationText();
-        setLastCheckedFxn();
-        readFerryBulletin();
-    }
+    handleAutoLocation();
     
-    //public static final String FILE_NAME = "NextBoat.html";
-    public static final String FILE_NAME_WEEK_DAY = "NextBoat_week_day.html";
-    public static final String FILE_NAME_WEEK_END = "NextBoat_week_end.html";
+    //..and re-read our file..
+    initNextFerry();
+
+    //..actual refresh part..
+    textView.setText( getNextFerry() );
+    setNextBoatDestinationText();
+    setLastCheckedFxn();
+    readFerryBulletin();
+  }
+
+  /**
+  * Returns true if today is Saturday or Sunday.
+  */
+  public boolean isWeekEnd()
+  {
+    return 1 == ( Calendar.getInstance().get( Calendar.DAY_OF_WEEK ) % 6 );
+  }
+
     
-    public static String whichFileName()
-    {
-        int dayOfWeekIndex = Calendar.getInstance().get( Calendar.DAY_OF_WEEK );
-        //..1 == sunday, 7 == saturday, monday == 2, etc..
-        
-        //..if weekend schedule..
-        if ( (dayOfWeekIndex == 1) || (dayOfWeekIndex == 7) )
-        {
-            return FILE_NAME_WEEK_END;
-        }
-        //..else weekday schedule..
-        else
-        {
-            return FILE_NAME_WEEK_DAY;
-        }
-    }
-    public boolean isWeekEnd()
-    {
-        int dayOfWeekIndex = Calendar.getInstance().get( Calendar.DAY_OF_WEEK );
-        //..if weekend schedule..
-        if ( (dayOfWeekIndex == 1) || (dayOfWeekIndex == 7) )
-        {
-            return true;
-        }
-        //..else weekday schedule..
-        else
-        {
-            return false;
-        }
-    }
+  /**
+  * Returns true if our deice has access to the internet.
+  *
+  * @see http://www.androidpeople.com/android-how-to-check-network-statusboth-wifi-and-mobile-3g/
+  */
+  private Boolean hasInternets()
+  {
+    ConnectivityManager connMan = 
+            (ConnectivityManager)this.getSystemService( Context.CONNECTIVITY_SERVICE );
+    NetworkInfo wifi =   connMan.getNetworkInfo( ConnectivityManager.TYPE_WIFI );
+    NetworkInfo mobile = connMan.getNetworkInfo( ConnectivityManager.TYPE_MOBILE );
+    return ( wifi.isAvailable() || mobile.isAvailable() );
+  }
+
+  /**
+  * Initialize the view and prepare the component references.
+  */
+  private void _initView()
+  {
+    textView          = (TextView) findViewById( R.id.id_text );
+    textViewLabel     = (TextView) findViewById( R.id.id_text_label );
+    textViewDeparting = (TextView) findViewById( R.id.id_text_departing );
     
-    //http://developer.android.com/reference/android/content/Context.html#getExternalFilesDir(java.lang.String)
-    public static File whichFile()
-    {
-        return new File( 
-            Environment.getExternalStorageDirectory(), 
-            whichFileName() );
-    }
+    textViewChecked    = (TextView) findViewById( R.id.id_text_checked );
+    textViewDownloaded = (TextView) findViewById( R.id.id_text_download );
     
-    //
-    //..( http://www.androidpeople.com/android-how-to-check-network-statusboth-wifi-and-mobile-3g/ )..
-    //
-    private Boolean isInternetAvailable()
-    {
-        final ConnectivityManager connMan = 
-                (ConnectivityManager)this.getSystemService( Context.CONNECTIVITY_SERVICE );
-        final NetworkInfo wifi =   connMan.getNetworkInfo( ConnectivityManager.TYPE_WIFI );
-        final NetworkInfo mobile = connMan.getNetworkInfo( ConnectivityManager.TYPE_MOBILE );
-        if ( wifi.isAvailable() )
-        {
-            return true;
-        }
-        else if ( mobile.isAvailable() )
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-    }
+    ScrollView scrollView = (ScrollView) findViewById( R.id.id_scrollview );
+    mBulletinTextView     = (TextView) scrollView.findViewById( R.id.id_bulletin );
     
-    private boolean mShowTimeStamps = false ; 
+    mButtonOne   = (Button) findViewById( R.id.id_button_one );
+    mButtonTwo   = (Button) findViewById( R.id.id_button_two );
+    mButtonThree = (Button) findViewById( R.id.id_button_three );
     
-    //
-    //..associate our views from main.xml by id..
-    //..also bind click-fxns to buttons..
-    //
-    private void _initViews()
-    {
-        
-        textView = (TextView) findViewById( R.id.id_text );
-        textViewLabel = (TextView) findViewById( R.id.id_text_label );
-        textViewDeparting = (TextView) findViewById( R.id.id_text_departing );
-        
-        textViewChecked = (TextView) findViewById( R.id.id_text_checked );
-        textViewDownloaded = (TextView) findViewById( R.id.id_text_download );
-        
-        ScrollView scrollView = (ScrollView) findViewById( R.id.id_scrollview );
-        mBulletinTextView = (TextView) scrollView.findViewById( R.id.id_bulletin );
-        
-        mButtonOne   = (Button) findViewById( R.id.id_button_one );
-        mButtonTwo   = (Button) findViewById( R.id.id_button_two );
-        mButtonThree = (Button) findViewById( R.id.id_button_three );
-        
-        mButtonOne.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                launchScheduleListFxn();
-            }
-        });
-        
-        mButtonTwo.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                launchFerryCamFxn();
-            }
-        });
-        
-        mButtonThree.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                vesselWatchFxn();
-            }
-        });
-    }
+    mButtonOne.setOnClickListener(new View.OnClickListener() {
+      public void onClick(View v) {
+        _showDepartures();
+      }
+    });
     
-    //..default to white text on black background..
-    public final static String PREFERENCE_TEXT_COLOR = "PreferenceTextColor";
-    public final static String DEFAULT_TEXT_COLOR = "9";
-    public static final String PREFERENCE_BACKGROUND_COLOR = "PreferenceBackgroundColor";
-    public static final String DEFAULT_BACKGROUND_COLOR = "0";
+    mButtonTwo.setOnClickListener(new View.OnClickListener() {
+      public void onClick(View v) {
+        _showFerryCam();
+      }
+    });
     
-    /**
-    * Set the text-colour for all of the view components.
-    */
-    private void _setupTextColour()
-    {
-      int textColour = Color.GREEN;
-      textView.setTextColor(           textColour );
-      textViewLabel.setTextColor(      textColour );
-      textViewChecked.setTextColor(    textColour );
-      textViewDownloaded.setTextColor( textColour );
-      textViewDeparting.setTextColor(  textColour );
-      mBulletinTextView.setTextColor(  textColour );
-    }
-    
-    /**
-    * Set the view's background colour.
-    */
-    private void _setupBackgroundColour()
-    {
-      RelativeLayout rl = (RelativeLayout)findViewById( R.id.id_main_relative_layout );
-      rl.setBackgroundColor( Color.BLACK );
-    }
-    
-    private void setBlurFxn()
-    {
-        Window win = getWindow();
-        WindowManager.LayoutParams lp = win.getAttributes();  
-        lp.dimAmount=1.0f;  
-        win.setAttributes(lp); 
-        win.addFlags( WindowManager.LayoutParams.FLAG_BLUR_BEHIND );
-        
-    }
-    
-    //..launch WSDOT Veseel Watch..
-    private void vesselWatchFxn()
-    {
-        //..TODO..launch WSDOT app..
-        //gov.wa.wsdot.android.wsdot/.SplashScreen
-        Intent intent = 
-            new Intent(
-                Intent.ACTION_VIEW,
-                Uri.parse( mVesselWatchUrl ) );
-        startActivity( intent );
-    }
-    
-    private String manuallyGetFerryDestination()
-    {
-        //..set to manual..
-        final int n = Integer.parseInt( 
-            mSharedPreferences.getString(
-                "ManualDestination",
-                "0") );
-        
-        return (0 == n) ? mFerryPortOne : mFerryPortTwo;
-    }
+    mButtonThree.setOnClickListener(new View.OnClickListener() {
+      public void onClick(View v) {
+        _showVesselWatch();
+      }
+    });
+
+    _setupView();
+  }
+   
+  /**
+  * Re-configure the view;
+  * To be called after the view has been initialized.
+  *
+  * ie. The app has resumed, etc.
+  */
+  private void _setupView()
+  {
+    _setupTextColour();
+    _setupBackgroundColour();
+
+    textViewLabel.setText(  "Next Boat : \n" + _destination );
+  }
+
+  /**
+  * Set the text-colour for all of the view components.
+  */
+  private void _setupTextColour()
+  {
+    int textColour = Color.GREEN;
+    textView.setTextColor(           textColour );
+    textViewLabel.setTextColor(      textColour );
+    textViewChecked.setTextColor(    textColour );
+    textViewDownloaded.setTextColor( textColour );
+    textViewDeparting.setTextColor(  textColour );
+    mBulletinTextView.setTextColor(  textColour );
+  }
+  
+  /**
+  * Set the view's background colour.
+  */
+  private void _setupBackgroundColour()
+  {
+    ( (RelativeLayout) findViewById( R.id.id_main_relative_layout ) )
+        .setBackgroundColor( Color.BLACK );
+  }
+
+  /**
+  * Bring up the WSDOT Vessel Watch webpage.
+  *
+  * @see gov.wa.wsdot.android.wsdot/.SplashScreen
+  */
+  private void _showVesselWatch()
+  {
+    // TODO: Consider directly launching the WSDOT app.
+    startActivity( new Intent(
+        Intent.ACTION_VIEW,
+        Uri.parse( mVesselWatchUrl ) ) );
+  }
+
+  private String manuallyGetFerryDestination()
+  {
+      //..set to manual..
+      final int n = Integer.parseInt( 
+          mSharedPreferences.getString(
+              "ManualDestination",
+              "0") );
+      
+      return (0 == n) ? _destinationA : _destinationB;
+  }
     
     final static String PREFERENCE_LAST_PORT = "PreferenceLastPort";
     
@@ -467,7 +387,7 @@ public class NextBoat extends Activity
         //..default to portOne..
         final String zPort = mSharedPreferences.getString(  
                     PREFERENCE_LAST_PORT,     
-                    mFerryPortOne );
+                    _destinationA );
         
         return zPort;
     }
@@ -475,22 +395,19 @@ public class NextBoat extends Activity
     //..
     private void handleAutoLocation()
     {
-        final String zPreviousDestination = mFerryDestination;
+        final String zPreviousDestination = _destination;
         
         final String zCurrentDestination = (mDisableAutoLocation) ? 
                 manuallyGetFerryDestination() : automagicallyFindDestination();
         
-        
-        
         saveDestination( zCurrentDestination );
         
         //..set global..
-        mFerryDestination = zCurrentDestination;
+        _destination = zCurrentDestination;
             
         //..meaning we chose something new..
         if ( !zCurrentDestination.equals( zPreviousDestination ) )
         {
-            clearTargetBoat();
             initNextFerry();
         }
     }
@@ -499,10 +416,12 @@ public class NextBoat extends Activity
     {
         //..http://www.damonkohler.com/2009/02/android-recipes.html
         
-        Location loc = mLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-        if (loc == null) {
+        LocationManager locationManager = (LocationManager) getSystemService( Context.LOCATION_SERVICE );
+        Location loc = locationManager.getLastKnownLocation( LocationManager.GPS_PROVIDER );
+        if (loc == null)
+        {
           // Fall back to coarse location.
-          loc = mLocationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+          loc = locationManager.getLastKnownLocation( LocationManager.NETWORK_PROVIDER );
         }
         if ( loc != null )
         {
@@ -515,20 +434,17 @@ public class NextBoat extends Activity
             location2.setLatitude( mPortTwoLat );
             location2.setLongitude( mPortTwoLong );
             
-            
-            
             final float distance1 = loc.distanceTo( location1 );
             final float distance2 = loc.distanceTo( location2 );
-            
             
             //..if the float comparison is negative, that means portTwo is closer..            
             if ( java.lang.Float.compare( distance2 , distance1 ) < 0 )
             {
-                return mFerryPortTwo;
+                return _destinationB;
             }
             else if ( java.lang.Float.compare( distance2 , distance1 ) > 0 )
             {
-                return mFerryPortOne;
+                return _destinationA;
             }
             else
             {
@@ -541,498 +457,203 @@ public class NextBoat extends Activity
         }
     }
     
-    private int mFerryMode = 0;
-    private Double mPortOneLat;
-    private Double mPortOneLong;
-    private Double mPortTwoLat;
-    private Double mPortTwoLong;
-    private boolean mCustomMode;
-    
-    //..keys to shared preferences..
-    public static final String PREFERENCE_THEME = "ThemeKey";
-    public static final String PREFERENCE_NAME = "NextBoat_prefs";
-    public static final String PREFERENCE_FERRY_SCHEDULE_URL = "FerryScheduleURL";
-    public static final String PREFERENCE_BAINBRIDGE_FERRY_CAM_URL = "BainbridgeFerryCamURL";
-    public static final String PREFERENCE_SEATTLE_FERRY_CAM_URL = "SeattleFerryCamURL";
-    public static final String PREFERENCE_DISABLE_AUTO_LOCATION = "DisableAutoLocation";
-    public static final String PREFERENCE_FERRY_SCHEDULE_REGEX = "FerryScheduleRegex";
-    public static final String PREFERENCE_DESTINATION_A = "SubstringDestinationA";
-    public static final String PREFERENCE_DESTINATION_B = "SubstringDestinationB";
-    
-    public static final String PREFERENCE_VESSEL_WATCH_URL = "PreferenceVesselWatchUrl";
-    public static final String PREFERENCE_FERRY_MODE =      "PreferenceFerryMode";
-    public static final String PREFERENCE_PORT_ONE_LAT =    "PreferencePortOneLat";
-    public static final String PREFERENCE_PORT_ONE_LONG =   "PreferencePortOneLong";
-    public static final String PREFERENCE_PORT_TWO_LAT =    "PreferencePortTwoLat";
-    public static final String PREFERENCE_PORT_TWO_LONG =   "PreferencePortTwoLong";
-    public static final String PREFERENCE_CUSTOM_MODE =     "PreferenceCustomMode";
-    
-    //..ie. refresh/update textviews visibility..
-    public static final String PREFERENCE_SHOW_ADDITIONAL = "PreferenceShowAdditional";
-    
-    
-    //
-    //..determine if our ferry mode changed..
-    //..used (later) to see if we should update our preferences to reflect our ferry mode..
-    //
-    //..updates mFerryMode as well..
-    //
-    private Boolean ferryModeChanged()
+
+  /**
+  * Download the latest ferry schedule(s).
+  */
+  private void _download()
+  {
+    if ( hasInternets() )
     {
-        final int i = Integer.parseInt(
-                mSharedPreferences.getString(  
-                    PREFERENCE_FERRY_MODE,     
-                    "0" ) );
-        //..stash previous..
-        final int j = mFerryMode;
-        
-        //..update..
-        mFerryMode = i;
-        
-        return (i != j )? true : false;
+      Log.w( TAG, "Failed to download the latest schedule, "+
+          "we're not connected to the internet!" );
+      return;
+    }
+
+    DownloadWebPage downloader = new DownloadWebPage( this, mFerryScheduleUrl, whichFile() );
+    downloader.start();
+  }
+
+  /**
+  * Show the live ferry-cam image to the user.
+  */
+  private void _showFerryCam()
+  {
+    String link = ( _destination.equals( _destinationA ) )?
+        getDestinationAFerryCamUrl() : getDestinationBFerryCamUrl();
+
+    startActivity( new Intent(
+        Intent.ACTION_VIEW,
+        Uri.parse( link ) ) );
+  }
+
+  /**
+  * Bring up a schedule listing all of the ferry departures for our current destination.
+  */
+  private void _showDepartures()
+  {
+    Intent departures = new Intent( this, DeparturesList.class );
+
+    departures.putExtra( "theList", _getScheduleAsCsv() );
+    departures.putExtra( "theIndex",
+        Integer.toString( mFerryObjectArray.indexOf( mNextBoat ) ) );    //..can be -1..
+    departures.putExtra( "theTitle",
+        _destination +
+            ( isWeekEnd() ) ? " (Weekend)" : " (Weekday)" );
+
+    startActivity( departures );
+  }
+
+  /**
+  * Serialize the ferry schedule as a CSV string.
+  *
+  * @return (String)
+  */
+  private String _getScheduleAsCsv()
+  {
+    return android.text.TextUtils.join( ',', mFerryObjectArray );
+  }
+
+  /**
+  * Open the ferry schedule web page.
+  */
+  private void _showScheduleWebPage()
+  {
+    startActivity( new Intent(
+        Intent.ACTION_VIEW,
+        Uri.parse( mFerryScheduleUrl ) ) );
+  }
+  
+  /**
+  * Open the ferry alerts/bulletins web page.
+  */
+  private void _showBulletinPage()
+  {
+    startActivity( new Intent (
+        Intent.ACTION_VIEW,
+        Uri.parse( getString( R.string.alert_bulletin_url ) ) ) );
+  }
+
+  /**
+  * Update the view's "next-sailing" label.
+  *
+  * @private
+  * @param next (FerryObject) is the next sailing.
+  * @return void
+  */
+  private void _displayNextSailing( FerryObject next )
+  {
+    textViewDeparting.setText( ( null == next )?
+        '' : next.prettyPrintBoat()+ " departs in : " + next.printWhenBoatLeaves() );
+  }
+
+  //
+  //..parse our html file and get the next ferry that is going to leave..
+  //
+  //..perhaps this should be it's own thread ?..
+  //
+  private String getNextFerry()
+  {
+    //..if empty, re-init..
+    if ( mFerryScheduleHtmlString == null )
+    {
+      initNextFerry();
+    }
+    //..TODO compare current time and return the right one ..
+    if ( mFerryObjectArray.size() == 0 )
+    {
+      _displayNextSailing( false );
+      return "";
     }
     
-    //
-    //..return true if custom ferry mode is enabled..
-    //..overides hardcoded values..
-    //
-    private Boolean isCustomModeEnabled()
+    //..get next time..
+    ArrayList<FerryObject> localFerryList = new ArrayList<FerryObject>();
+    Date now = Calendar.getInstance().getTime();
+    for ( int i=0; i < mFerryObjectArray.size(); i++ )
     {
-        final Boolean b = mSharedPreferences.getBoolean(
-                PREFERENCE_CUSTOM_MODE,
-                false );
-        return b;
+      //..if we could catch the boat..
+      if ( now.before( mFerryObjectArray.get(i).getDate() ) )
+      {
+        localFerryList.add( mFerryObjectArray.get( i ) );
+      }
     }
     
-    private Boolean preferencesNeedChanged()
+    FerryObject zNextBoat = new FerryObject();
+    if ( localFerryList.size() <= 0 )
     {
-        //..do not over-write if using custom..
-        if ( isCustomModeEnabled() )
-        {
-            return false;
-        }
-        //..else for normal ferry modes..
-        else
-        {
-            return ferryModeChanged();
-        }
-        
+      mNextBoat = null;
+      _displayNextSailing( null );
+      return "No Next Boat!";
     }
-    
-    //
-    //..doesn't directly write ..
-    //..decides which values we want to over-write..
-    //..under advanced settings..
-    //
-    private Boolean writeSharedPreferencesIfNeeded()
+    else if ( localFerryList.get(0) != null )
     {
+      zNextBoat = localFerryList.get(0);
+      mNextBoat = zNextBoat;
+      _displayNextSailing( mNextBoat );
+      return zNextBoat.prettyPrint();
     }
-    
-    public static final String PREFERENCE_BULLETIN_REGEX = "PreferenceBulletinRegex";
-    public static final String PREFERENCE_HOURLY_UPDATE_INTERVAL = "PreferenceHourlyUpdate";
-    public static final String PREFERENCE_BULLETIN_LENGTH = "PreferenceBulletinLength";
-    public static final String PREFERENCE_SHOW_ALL_BULLETIN = "PreferenceShowAllBulletins";
-    //
-    //..reads prefs..
-    //..defaults to bainbridge..
-    //
-    private void readSharedPreferences( SharedPreferences pPrefs )
+    else
     {
+      _displayNextSailing( false );
+      return "";
     }
-    
-    
-    //..
-    private void setLastCheckedFxn()
+  }
+
+  /**
+  * Parse the WSDOT web page and extract the schedule related content.
+  *
+  * For Example:
+  * AM/PM, HH:MM, and the vessel's name.
+  *
+  * @param html (String) is the WSDOT web page HTML contents to search within.
+  * @return (ArrayList<String>) of parsed contents.
+  */
+  private ArrayList htmlToListViaRegex( String html )
+  {
+    Pattern pattern = Pattern.compile( mRegex );
+    Matcher matcher = pattern.matcher( html );
+    ArrayList parsed = new ArrayList();
+    while ( matcher.find() )
     {
-        if (mShowTimeStamps)
-        {
-            SimpleDateFormat formatter = new SimpleDateFormat( mSimpleDateFormatString );
-            textViewChecked.setText( 
-                "Last Refreshed : " + formatter.format( new Date() ) );
+      for ( var i = 1; i < 5; i++ ) {
+        String content = matcher.group( i );
+        if ( null != content ) {
+          parsed.add( ( content.equals( 'Midnight' ) ||
+            content.equals( 'Noon' ) )?
+              '12:00' : content );
         }
-        else
-        {
-            //..redundantly clear..
-            //..since Download doesn't get called often..
-            textViewChecked.setText("");
-            textViewDownloaded.setText("");
-        }
+      }
     }
+    return parsed;
+  }
+
+  //
+  //..selectively loads html,..
+  //..then assembles a list of ferryObjects..
+  //
+  private void initNextFerry()
+  {
+    //..clear variables..
+    mFerryObjectArray.clear();
+    mFerryScheduleHtmlString = "";
     
-    //..
-    private void downloadLatest()
+    //..set our local var mFerryScheduleHtmlString..
+    if ( loadFerrySchedule() )
     {
-        if ( isInternetAvailable() )
-        {
-            DownloadWebPage zDownloadWebPage = new DownloadWebPage( this, mFerryScheduleUrl, whichFile() );
-            zDownloadWebPage.start();
-            
-            updateDownloadLatestText( System.currentTimeMillis() );
-            downloadFerryBulletin();
-        }
-        else
-        {
-            Toast.makeText( 
-                this, 
-                "Update Failed : no network connection...",
-                Toast.LENGTH_LONG
-                ).show();  
-        }
+      //..reduce htmlString to applicable destination..
+      String htmlSchedule = getAppropriateHtml();
+      
+      ArrayList li = new ArrayList();
+      li = htmlToListViaRegex( htmlSchedule );
+      
+      //..TODO..remove debug log..
+      
+      ArrayList<FerryObject> ki = populateFerryObjectList( li );
+      
+      mFerryObjectArray = correctFerryListForLateNights( ki );
     }
-    
-    
-    //
-    //..displays the pseudo-lastModified date of the NextBoat.html file..
-    //
-    private void updateDownloadLatestText( long pLong )
-    {
-        if (mShowTimeStamps)
-        {
-            SimpleDateFormat formatter = new SimpleDateFormat( mSimpleDateFormatString );
-            textViewDownloaded.setText(
-                "Last Updated : " + formatter.format( new Date( pLong ) ) );
-        }
-        else
-        {
-            textViewDownloaded.setText("");
-        }
-    }
-    //
-    //..open a browser to the appropriate ferry cam image..
-    //
-    private void launchFerryCamFxn()
-    {
-        Intent intent = 
-            new Intent(
-                Intent.ACTION_VIEW,
-                Uri.parse( getAppropriateFerryCamURL() ) );
-        startActivity( intent );
-    }
-    
-    private String getAppropriateFerryCamURL()
-    {
-    
-        if ( mFerryDestination.equals( mFerryPortOne ) )
-        {
-            return mPortOneFerryCamUrl;
-        }
-        else
-        {
-            //..else we are leaving bainbridge..
-            return mPortTwoFerryCamUrl;
-        }
-    }
-    
-    
-    
-    //
-    //..launch an activity with a list view of our ferry schedule..
-    //
-    private void launchScheduleListFxn()
-    {
-        //..assemble a comma delimited string to pass..
-        String s = assembleCommaSeparatedSchedule();
-        Intent intent = 
-            new Intent( 
-                this, 
-                DeparturesList.class );
-        intent.putExtra( "theList", s );
-        
-        //.. x can be -1 ..
-        final String x = Integer.toString( mFerryObjectArray.indexOf( mNextBoat ) );
-        intent.putExtra( "theIndex", x );
-        
-        final String weekEndOrDay = ( isWeekEnd() ) ? " (Weekend)" : " (Weekday)" ;
-        intent.putExtra( "theTitle", (mFerryDestination + weekEndOrDay) );
-        
-        String y = Integer.toString( -1 );
-        if (mTargetBoat != null)
-        {
-            //..TODO:..simplify
-            //..if we force-refresh, we technically cannot find mTargetBoat's index in the "new" array.. 
-            //..for a quick-fix, just use the index of what worked last time..
-            y = Integer.toString( mFerryObjectArray.indexOf( mTargetBoat ) );
-        }
-        if( (mTargetBoat != null) && (new Integer(y) == -1) && (mTargetBoatIndex != -1) )
-        {
-            //..try using the target boat index of last time..
-            //..if they are basically the same..
-            if ( ( mTargetBoat.prettyPrint() ).equals( mFerryObjectArray.get( mTargetBoatIndex ).prettyPrint() ) )
-            {
-                y = Integer.toString( mTargetBoatIndex );
-            }
-        }
-        intent.putExtra( "theTargetBoatIndex", y);
-        
-        //startActivity( intent );
-        startActivityForResult( intent, TARGET_BOAT_REQUEST );
-    }
-    
-    public static final int TARGET_BOAT_REQUEST = 123;
-    
-    //..    http://developer.android.com/reference/android/app/Activity.html
-    //..    #startActivityForResult(android.content.Intent, int)
-    protected void onActivityResult(int requestCode, int resultCode,
-             Intent pData) 
-    {
-         
-         if (requestCode == TARGET_BOAT_REQUEST) {
-             if (resultCode == Activity.RESULT_OK ) {
-                 final int targetBoatIndex = new Integer(
-                        pData.getExtras().getString( DeparturesList.TARGET_BOAT ) );
-                 mTargetBoat = mFerryObjectArray.get( targetBoatIndex );
-                 mTargetBoatIndex = targetBoatIndex;
-                 //updateTargetBoatText();
-             }
-         }
-         
-     }
-    
-    
-    //
-    //..joins the ferry object list by ","..
-    //
-    private String assembleCommaSeparatedSchedule()
-    {
-        String foo = "";
-        for ( int i=0; i < mFerryObjectArray.size(); i++ )
-        {
-            foo = foo + ( mFerryObjectArray.get( i ).print() + "," );
-        }
-        return foo;
-    }
-    
-    //
-    //..open web page to ferry schedule..
-    //
-    private void goOnlineFxn()
-    {
-        //..TODO..beconfigurable via preferences..
-        Intent myIntent = new Intent( Intent.ACTION_VIEW, 
-            Uri.parse( mFerryScheduleUrl ));
-        startActivity( myIntent );
-    }
-    
-    //
-    //..open web page to ferry alert bulletins..
-    //
-    //..TODO: open activity instead..
-    private void goOnlineAlertFxn()
-    {
-        Intent myIntent = new Intent ( Intent.ACTION_VIEW,
-            Uri.parse( getString( R.string.alert_bulletin_url ) ) );
-        startActivity( myIntent );
-    }
-    
-    
-    private void updateWhenBoatDeparts( Boolean b )
-    {
-        if (b)
-        {
-            textViewDeparting.setText( mNextBoat.prettyPrintBoat()+ " departs in : " + mNextBoat.printWhenBoatLeaves() );
-        }
-        else
-        {
-            textViewDeparting.setText( "n/a" );
-        }
-    }
-    private void updateWhenBoatDeparts( FerryObject pFerryObject )
-    {
-        textViewDeparting.setText( pFerryObject.prettyPrintBoat()+ " departs in : " + pFerryObject.printWhenBoatLeaves() );
-    }
-    
-    public static final String PLEASE_REFRESH = "[ Instructions ] \n 1.) Don't Panic! \n 2.) menu...preferences...Set Ferry Route (If you already haven't) \n 3.) Check Network \n 4.) menu...more...Force-Update \n 5.) menu...more...Force-Refresh \n 6.)  Enjoy! ;)";
-    
-    //
-    //..parse our html file and get the next ferry that is going to leave..
-    //
-    //..perhaps this should be it's own thread ?..
-    //
-    private String getNextFerry()
-    {
-        //
-        //..TODO..set unknown from xml string val..
-        //
-        
-        //..TODO: BUG..
-        /* 
-        We fail if we don't have our html file on first run through or if empty ?
-        */
-        File f = whichFile();
-        if ( !f.exists() )
-        {
-            updateWhenBoatDeparts( false );
-            textViewDeparting.setText( PLEASE_REFRESH );
-            return "";
-        }
-        //..if empty, re-init..
-        if ( mFerryScheduleHtmlString == null )
-        {
-            initNextFerry();
-        }
-        //..TODO compare current time and return the right one ..
-        if ( mFerryObjectArray.size() == 0 )
-        {
-            updateWhenBoatDeparts( false );
-            textViewDeparting.setText( PLEASE_REFRESH );
-            return "";
-        }
-        if ( mTargetBoat != null )
-        {
-            updateWhenBoatDeparts( mTargetBoat );
-            return mTargetBoat.prettyPrint();
-        }
-        
-        //..get next time..
-        ArrayList<FerryObject> localFerryList = new ArrayList<FerryObject>();
-        Date now = Calendar.getInstance().getTime();
-        for ( int i=0; i < mFerryObjectArray.size(); i++ )
-        {
-            //..if we could catch the boat..
-            //int comparison = now.compareTo( mFerryObjectArray.get(i).toLong() );
-            if ( now.before( mFerryObjectArray.get(i).getDate() ) )
-            {
-                localFerryList.add( mFerryObjectArray.get( i ) );
-            }
-        }
-        
-        FerryObject zNextBoat = new FerryObject();
-        if ( localFerryList.size() <= 0 )
-        {
-            //zNextBoat.setNull( true );
-            //mNextBoat = zNextBoat;
-            //zReturn = zNextboat.print();
-            mNextBoat = null;
-            updateWhenBoatDeparts( false );
-            return "No Next Boat!";
-        }
-        else if ( localFerryList.get(0) != null )
-        {
-            zNextBoat = localFerryList.get(0);
-            mNextBoat = zNextBoat;
-            updateWhenBoatDeparts( mNextBoat );
-            return zNextBoat.prettyPrint();
-        }
-        else
-        {
-            updateWhenBoatDeparts( false );
-            textViewDeparting.setText( PLEASE_REFRESH );
-            return "";
-        }
-    }
-    
-    //
-    //..substrings the html file based on current destination..
-    //..in preparation for ferry object list assembly..
-    //
-    private String getAppropriateHtml()
-    {
-        String zHtmlSchedule = "";
-        
-        //..TODO: add StringIndexOutOfBoundsExceptions..
-        int i = mFerryScheduleHtmlString.indexOf( mFerryPortOne );
-        int j = mFerryScheduleHtmlString.indexOf( mFerryPortTwo );
-        
-        
-        if ( ( -1 == i ) || ( -1 == j ) )
-        {
-            //downloadLatest();
-            return "fail!";
-        }
-        if ( i < j )
-        {
-            if ( mFerryDestination.equals( mFerryPortOne ) )
-            {
-                zHtmlSchedule = mFerryScheduleHtmlString.substring( i, j );
-            }
-            else
-            {
-                zHtmlSchedule = mFerryScheduleHtmlString.substring( j );
-            }
-        }
-        else
-        {
-            //..else j is before i..
-            if ( mFerryDestination.equals(mFerryPortTwo) )
-            {
-                zHtmlSchedule = mFerryScheduleHtmlString.substring( j, i );
-            }
-            else
-            {
-                zHtmlSchedule = mFerryScheduleHtmlString.substring( i );
-            }
-        }
-        return zHtmlSchedule;
-    }
-    
-    //
-    //..creates an ArrayList AM/PM, HH:MM, and BoatName..
-    //
-    private ArrayList htmlToListViaRegex( String pHtmlString )
-    {
-        Pattern pattern = Pattern.compile( mRegex );
-        Matcher matcher = pattern.matcher( pHtmlString );
-        ArrayList li = new ArrayList();
-        while ( matcher.find() )
-        {
-            if ( matcher.group(1) != null )
-            {
-                li.add( matcher.group(1) );
-            }
-            else if ( matcher.group(2) != null )
-            {
-                li.add( matcher.group(2) );
-            }
-            else if ( matcher.group(3) != null )
-            {
-                li.add( matcher.group(3) );
-            }
-            //..Midnight or Noon..
-            else if ( matcher.group(4) != null )
-            {
-                
-                if ( (matcher.group(4)).equals("Midnight") )
-                {
-                    li.add( "12:00" );
-                }
-                if ( (matcher.group(4)).equals("Noon") )
-                {
-                    li.add( "12:00" );
-                }
-            }
-            
-        }
-        return li;
-    }
-    
-    //
-    //..selectively loads html,..
-    //..then assembles a list of ferryObjects..
-    //
-    private void initNextFerry()
-    {
-        //..clear variables..
-        mFerryObjectArray.clear();
-        mFerryScheduleHtmlString = "";
-        
-        //..set our local var mFerryScheduleHtmlString..
-        if ( loadFerrySchedule() )
-        {
-        
-            //..reduce htmlString to applicable destination..
-            String htmlSchedule = getAppropriateHtml();
-            
-            ArrayList li = new ArrayList();
-            li = htmlToListViaRegex( htmlSchedule );
-            
-            //..TODO..remove debug log..
-            
-            ArrayList<FerryObject> ki = populateFerryObjectList( li );
-            
-            mFerryObjectArray = correctFerryListForLateNights( ki );
-        }
-    }
-    
+  }
+
     //
     //..used to populate mFerryObjectArray with FerryObjects..
     //
@@ -1086,7 +707,7 @@ public class NextBoat extends Activity
                 ferryObject.setTime( HHMM, aa, bNextDay );
                 //..TODO..might be null boat..
                 ferryObject.setBoat( boat );
-                ferryObject.setLeaving( mFerryDestination );
+                ferryObject.setLeaving( _destination );
                 //..append to array..
                 zList.add( ferryObject );
             }
@@ -1094,141 +715,18 @@ public class NextBoat extends Activity
         
         return zList;
     }
+
     
-    //
-    //..finds boats between 12am ~ 4am and prefixes our list..
-    //..a quick fix for incorrectly predicting next boat post midnight..
-    //
-    //..TODO: this might inappropriately extrapolate..
-    //..today's schedule against say a holiday..
-    //
-    private ArrayList<FerryObject> correctFerryListForLateNights( 
-            ArrayList<FerryObject> pOriginalFerryList           )
-    {
-        ArrayList<FerryObject> li = new ArrayList<FerryObject>();
-        
-        int zHour = 0;
-        Calendar zCal = Calendar.getInstance();
-        for ( int i=0; i < pOriginalFerryList.size(); i++  )
-        {
-            zHour = pOriginalFerryList.get(i).getCalendar().get(Calendar.HOUR_OF_DAY);
-            //..between midnight and 3 am..
-            if ( zHour < 4 )
-            {
-                //..TODO..clone..
-                FerryObject zClone = new FerryObject();
-                zClone.setBoat( pOriginalFerryList.get(i).getBoat() );
-                zCal = (Calendar)pOriginalFerryList.get(i).getCalendar().clone();
-                //..set to today..
-                zCal.set(
-                    Calendar.DAY_OF_YEAR, 
-                    zCal.get( Calendar.DAY_OF_YEAR ) - 1 );
-                zClone.setCalendar( zCal );
-                
-                zClone.setExtra( " (extrapolation)" );
-                    
-                li.add( zClone );
-            }
-        }
-        
-        //..2nd iteration to merge lists..
-        //..TODO just use + ?
-        for ( int i=0; i < pOriginalFerryList.size(); i++  )
-        {
-            li.add( pOriginalFerryList.get(i) );
-        }
-        
-        return li;
-    }
-    
-    
-    //
-    //..reads the NextBoat.html file..
-    //..substrings the important parts..
-    //..and stores it into the variable mFerryScheduleHtmlString..
-    //
-    //..returns true on success (we have file)..
-    //
-    private Boolean loadFerrySchedule()
-    {
-        
-        //..TODO..
-        //..should we do this subString step BEFORE we write to file?..
-    
-        //..check if we have our html file..
-        File f = whichFile();
-        if ( !f.exists() )
-        {
-            //downloadLatest();
-            return false;
-        }
-        //..read it..
-        String htmlString = ReadFile( f );
-        if ( htmlString.length() < 1 )
-        {
-            downloadLatest();
-            return false;
-        }
-        
-        mFerryScheduleHtmlString = htmlString;
-        return true;
-    }
-    //..( http://stackoverflow.com/questions/2902689/read-text-file-data-in-android )..
-    private String ReadFile( File pFile )
-    {
-        return DownloadWebPage.ReadFile( pFile );
-    }
-    
-    private void downloadFerryBulletin()
-    {
-        FerryBulletin ferryBulletin = new FerryBulletin( this );
-        ferryBulletin.DownloadBulletin();
-    }
-    
-    private TextView mBulletinTextView;
-    private int mBulletinLength;
-    
-    
-    //..this actually prints a short summary..
-    private void readFerryBulletin()
-    {
-        //..if set to none, so nothing..
-        if (mBulletinLength <= 1)
-        {
-            mBulletinTextView.setText("");
-            return;
-        }
-        
-        String zBulletin = FerryBulletin.readBulletin( mBulletinRegex );
-        if ( zBulletin.length() > mBulletinLength )
-        {
-            zBulletin = zBulletin.substring( 0, mBulletinLength ) + " . . .";
-        }
-        
-        mBulletinTextView.setText( zBulletin.replaceAll("\n", "") );
-    }
-    
-    private boolean mShowAllBulletinIfEmpty = true;
-    
-    private void viewAlertBulletinDialog()
-    {
-        String zBulletin = FerryBulletin.readBulletin( mBulletinRegex );
-        if ( zBulletin.length() < 5 && mShowAllBulletinIfEmpty)
-        {
-            zBulletin = FerryBulletin.readBulletin( );    
-        }
-        if ( zBulletin.length() < 5)
-        {
-            zBulletin = "No Relevant Alert Bulletins Found!";
-        }
-        new org.aschyiel.nextboat.BulletinDialog(
-                this, zBulletin ).show();
-    }
-    
-    //..TODO..
-    //..if first time,..launch setup..
-    //
-    
-    
-    
+  //
+  //..reads the NextBoat.html file..
+  //..substrings the important parts..
+  //..and stores it into the variable mFerryScheduleHtmlString..
+  //
+  //..returns true on success (we have file)..
+  //
+  private Boolean loadFerrySchedule()
+  {
+    return false;
+  }
+
 }

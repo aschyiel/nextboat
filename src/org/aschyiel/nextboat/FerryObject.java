@@ -156,7 +156,6 @@ public class FerryObject
     
     public String print()
     {
-        //return _time.hours + ":" + _time.minutes + " @"+ _boat;
         return 	mNull ? "No Next Boat!" : ("@"+getTimeAsString() + " ["+_boat +"] "+ mExtra);
     }
     

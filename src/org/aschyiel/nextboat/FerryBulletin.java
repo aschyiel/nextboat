@@ -43,7 +43,7 @@ public class FerryBulletin
     public static final String BULLETIN_URL = "http://www.wsdot.wa.gov/ferries/schedule/bulletin.aspx";
     public static final String BULLETIN_FILE_NAME = "NextBoat_bulletin.html";
 
-    public void DownloadBulletin()
+    public void download()
     {
         DownloadWebPage zDownloadWebPage = 
                 new DownloadWebPage( mContext, BULLETIN_URL, getBulletinFile() );
