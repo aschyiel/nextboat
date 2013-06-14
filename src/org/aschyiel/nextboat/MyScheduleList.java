@@ -60,7 +60,9 @@ import android.view.MenuItem;
 import java.util.ArrayList;
 import java.lang.String;
 
-
+/**
+* This view displays a list of departing boats times.
+*/
 public class MyScheduleList extends ListActivity
 {
     private static final String TAG = "MyListView";
@@ -69,219 +71,119 @@ public class MyScheduleList extends ListActivity
     
     public static final int CONTEXT_MENU_TARGET_BOAT = 0;
     
-    private int mTextColor;
-    private int mBackgroundColor;
-    
-    
     Bundle extras;
 
     @Override
     public void onCreate( Bundle savedInstanceState )
     {
-        super.onCreate( savedInstanceState );
-    
-        String[] li = new String[64];
-    
-        extras = getIntent().getExtras();
-        if (extras != null)
+      super.onCreate( savedInstanceState );
+  
+      String[] li = new String[64];
+  
+      extras = getIntent().getExtras();
+      if (extras != null)
+      {
+        li = extras.getString("theList").split(",");
+        
+        int i = Integer.parseInt( extras.getString("theIndex") );
+        if ( i > -1 )
         {
-            li = extras.getString("theList").split(",");
-            
-            int k = Integer.parseInt( 
-                    extras.getString("theTargetBoatIndex") );
-            
-            //..targetBoat could be null..
-            if ( k > -1 )
-            {
-                li[ k ] = li[ k ] + " (TARGET)";
-            }
-            
-            int i = Integer.parseInt( extras.getString("theIndex") );
-            if ( i > -1 )
-            {
-                li[ i ] = li[ i ] + " <-- NEXT!";
-            }
-            
-            setTitle( extras.getString("theTitle") );
-        }
-        else
-        {
-            li[0] = "err0r";
+          li[ i ] = li[ i ] + " <-- NEXT!";
         }
         
-        //..TODO.. make this more abstract..
-        
-        //..prefs..
-        SharedPreferences mSharedPreferences = this.getSharedPreferences( 
-            NextBoat.PREFERENCE_NAME, 
-            Context.MODE_PRIVATE );
-        
-        //getColorFromSwitch
-        
-        final int zTextColorIndex = Integer.parseInt(
-            mSharedPreferences.getString(  
-                NextBoat.PREFERENCE_TEXT_COLOR,     
-                NextBoat.DEFAULT_TEXT_COLOR )
-        );
-        
-        final int zBackgroundColorIndex = Integer.parseInt(
-            mSharedPreferences.getString(  
-                NextBoat.PREFERENCE_BACKGROUND_COLOR,     
-                NextBoat.DEFAULT_BACKGROUND_COLOR )
-        );
-        
-        mTextColor =        NextBoat.getColorFromSwitch( zTextColorIndex  );
-        mBackgroundColor =  NextBoat.getColorFromSwitch( zBackgroundColorIndex );
-        
-        setListAdapter( new MyAdapter( this, li ) );
-            
-        if (extras != null)
-        {
-            int i = Integer.parseInt( extras.getString("theIndex") );
-            setSelection( i );
-        }
-    
-        //.. http://www.anddev.org/creating_a_contextmenu_on_a_listview-t2438.html ..
-        getListView().setOnCreateContextMenuListener( new OnCreateContextMenuListener() 
-        {
-            @Override
-            public void onCreateContextMenu(
-                    ContextMenu menu, 
-                    View v,
-                    ContextMenuInfo menuInfo ) 
-            {
-
-                // TODO Auto-generated method stub
-                menu.setHeaderTitle("ContextMenu");
-                menu.add(
-                    Menu.NONE,
-                    Menu.NONE, 
-                    CONTEXT_MENU_TARGET_BOAT, 
-                    R.string.context_menu_target_boat );
-            } 
-        });
-    
-    }
-    
-    /*
-    see 
-    http://groups.google.com/group/android-developers/browse_thread/thread/721ba12dbd20a023/1f726518277739e3?show_docid=1f726518277739e3
-    */
-    private class MyAdapter extends BaseAdapter
-    {
-        private LayoutInflater mInflater;
-    
-    
-        private String[] mList = new String[64];
-        
-        MyAdapter( Context pContext, String[] pList)
-        {
-            mInflater = LayoutInflater.from( pContext );
-            mList = pList.clone();
-            
-        }
-        
-        public int getCount()
-        {
-            return mList.length;
-        }
-        
-        public Object getItem(int position) {
-            return position;
-        }
-        
-        public long getItemId(int position) {
-            return position;
-        }
-        
-        public View getView( 
-                int position, 
-                View convertView, 
-                ViewGroup parent )
-        {
-            ViewHolder holder;
-            
-            if ( convertView  == null )
-            {
-                convertView = mInflater.inflate( R.layout.list_item, null );
-                holder = new ViewHolder();
-                holder.textView = (TextView) convertView.findViewById( R.id.id_list_item );
-                
-                holder.textView.setTextColor( mTextColor );
-                holder.textView.setBackgroundColor( mBackgroundColor );
-                
-                convertView.setTag( holder );
-            }
-            else
-            {
-                holder = (ViewHolder) convertView.getTag();
-            }
-        
-            holder.textView.setText( mList[ position ] );
-            
-            return convertView;
-        
-        }
-        
-        /*
-        http://developer.android.com/resources/samples/ApiDemos/src/com/example/android/apis/view/List14.html
-        */
-        class ViewHolder 
-        {
-            TextView textView;
-        }
-    }
-    
-    
-    
-    @Override
-    public boolean onContextItemSelected(MenuItem item) 
-    {
-        AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
-        switch (item.getItemId()) 
-        {
-            case CONTEXT_MENU_TARGET_BOAT:
-                Intent iData = new Intent();
-                iData.putExtra( 
-                        TARGET_BOAT, 
-                        Integer.toString( (int) info.id ) );
-                
-                setResult( 
-                    android.app.Activity.RESULT_OK,
-                    iData );
-                finish();
-                
-                return true;
-            default:
-                return super.onContextItemSelected(item);
-        }
-    }
-    
-    //..for menu button (back)..
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.my_schedule_menu, menu);
-        return true;
-    }
-
-    //..for menu button (back)..
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle item selection
-        switch (item.getItemId()) {
-        case R.id.id_go_back:
-            //..return to parent activity..
-            setFinish();
-            return true;
-        default:
-            return super.onOptionsItemSelected(item);
-        }
+        setTitle( extras.getString("theTitle") );
+      }
+      else
+      {
+        li[0] = "err0r";
+      }
+      
+      setListAdapter( new MyAdapter( this, li ) );
+          
+      if (extras != null)
+      {
+        int i = Integer.parseInt( extras.getString("theIndex") );
+        setSelection( i );
+      }
     }
 
     private void setFinish()
     {
         finish();
     }
+
+  //---------------------------------
+  //
+  // Private classes.
+  //
+  //---------------------------------
+
+  /*
+  see 
+  http://groups.google.com/group/android-developers/browse_thread/thread/721ba12dbd20a023/1f726518277739e3?show_docid=1f726518277739e3
+  */
+  private class MyAdapter extends BaseAdapter
+  {
+    private LayoutInflater mInflater;
+
+
+    private String[] mList = new String[64];
+    
+    MyAdapter( Context pContext, String[] pList)
+    {
+        mInflater = LayoutInflater.from( pContext );
+        mList = pList.clone();
+        
+    }
+    
+    public int getCount()
+    {
+        return mList.length;
+    }
+    
+    public Object getItem(int position) {
+        return position;
+    }
+    
+    public long getItemId(int position) {
+        return position;
+    }
+    
+    public View getView( 
+            int position, 
+            View convertView, 
+            ViewGroup parent )
+    {
+      ViewHolder holder;
+      
+      if ( convertView  == null )
+      {
+        convertView = mInflater.inflate( R.layout.list_item, null );
+        holder = new ViewHolder();
+        holder.textView = (TextView) convertView.findViewById( R.id.id_list_item );
+        
+        holder.textView.setTextColor( Color.GREEN );
+        holder.textView.setBackgroundColor( Color.BLACK );
+        
+        convertView.setTag( holder );
+      }
+      else
+      {
+          holder = (ViewHolder) convertView.getTag();
+      }
+  
+      holder.textView.setText( mList[ position ] );
+      
+      return convertView;
+    }
+    
+    /*
+    http://developer.android.com/resources/samples/ApiDemos/src/com/example/android/apis/view/List14.html
+    */
+    class ViewHolder 
+    {
+        TextView textView;
+    }
+  }
 
 }

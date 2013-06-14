@@ -21,50 +21,40 @@
  */
 -->
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    
-    <!-- ..schedule.. -->
-    <item android:id="@+id/id_view_all"
-          android:icon="@drawable/schedule_menu"
-          android:title="@string/menu_view_all" />
-    <!-- ..ferry cam.. -->
-    <item android:id="@+id/id_ferry_cam"
-          android:icon="@drawable/camera_menu"
-          android:title="@string/menu_ferry_cam" />
-    <!-- ..vessel watch.. -->
-    <item android:id="@+id/id_vessel_watch"
-          android:icon="@drawable/vessel_menu"
-          android:title="@string/menu_vessel_watch" />
-    
-    <!-- ..web.. -->
-    <item android:id="@+id/id_view_alert_bulletin"
-          android:icon="@android:drawable/ic_menu_info_details"
-          android:title="@string/menu_view_alert_bulletin" />
-    
-    <!-- ..preferences.. -->
-    <item android:id="@+id/id_preferences"
-          android:icon="@android:drawable/ic_menu_preferences"
-          android:title="@string/menu_preferences" />
-    <!-- ..[ more... ].. -->
-    
-    <!-- ..Force-Update.. -->
-    <item android:id="@+id/id_download"
-          android:icon="@android:drawable/ic_menu_rotate"
-          android:title="@string/menu_download" />
-    <!-- ..Force-Refresh.. -->
-    <item android:id="@+id/id_refresh"
-          android:icon="@android:drawable/ic_menu_rotate"
-          android:title="@string/menu_refresh" />
-    <!-- ..Clear Target Boat.. -->
-    <item android:id="@+id/id_clear_target_boat"
-          android:icon="@android:drawable/ic_menu_close_clear_cancel"
-          android:title="@string/menu_clear_target_boat" />
-    <!-- ..web.. -->
-    <item android:id="@+id/id_go_online"
-          android:icon="@android:drawable/ic_menu_compass"
-          android:title="@string/menu_go_online" />
-    <!-- ..View Alert Bulletin.. -->
-    <item android:id="@+id/id_go_alert"
-          android:icon="@android:drawable/ic_menu_compass"
-          android:title="@string/menu_alert_bulletin" />
-    
+
+  <!-- ..schedule.. -->
+  <item android:id="@+id/id_view_all"
+    android:icon="@drawable/schedule_menu"
+    android:title="@string/menu_view_all"
+    />
+
+  <!-- ..ferry cam.. -->
+  <item android:id="@+id/id_ferry_cam"
+    android:icon="@drawable/camera_menu"
+    android:title="@string/menu_ferry_cam"
+    />
+
+  <!-- ..vessel watch.. -->
+  <item android:id="@+id/id_vessel_watch"
+    android:icon="@drawable/vessel_menu"
+    android:title="@string/menu_vessel_watch"
+    />
+
+  <!-- ..web.. -->
+  <item android:id="@+id/id_view_alert_bulletin"
+    android:icon="@android:drawable/ic_menu_info_details"
+    android:title="@string/menu_view_alert_bulletin"
+    />
+
+  <item android:id="@+id/id_go_online"
+    android:icon="@android:drawable/ic_menu_compass"
+    android:title="@string/menu_go_online"
+    />
+
+  <!-- ..View Alert Bulletin.. -->
+  <item android:id="@+id/id_go_alert"
+    android:icon="@android:drawable/ic_menu_compass"
+    android:title="@string/menu_alert_bulletin"
+    />
+
 </menu>

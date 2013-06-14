@@ -22,7 +22,6 @@ package org.aschyiel.nextboat;
 
 import org.aschyiel.nextboat.DownloadWebPage;
 import org.aschyiel.nextboat.FerryObject;
-import org.aschyiel.nextboat.PreferenceWriter;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -209,9 +208,6 @@ public class NextBoat extends Activity
             return true;
         case R.id.id_go_online:
             goOnlineFxn();
-            return true;
-        case R.id.id_preferences:
-            launchPreferencesFxn();
             return true;
         case R.id.id_ferry_cam:
             launchFerryCamFxn();
@@ -707,28 +703,6 @@ public class NextBoat extends Activity
     //
     private Boolean writeSharedPreferencesIfNeeded()
     {
-        if ( preferencesNeedChanged() )
-        {
-            PreferenceWriter helper = new PreferenceWriter( this, mSharedPreferences );
-            switch( mFerryMode )
-            {
-                case 0:
-                    helper.writeSharedPreferencesBainbridge( );
-                    break;
-                case 1:
-                    helper.writeSharedPreferencesBremerton( );
-                    break;
-                case 2:
-                    helper.writeSharedPreferencesEdmondsKingston( );
-                    break;
-                default:
-                    helper.writeSharedPreferencesBainbridge( );
-                    break;
-            }//..hctiws..
-            
-            return true;
-        }//..fi..
-        return false;
     }
     
     public static final String PREFERENCE_BULLETIN_REGEX = "PreferenceBulletinRegex";
@@ -741,86 +715,6 @@ public class NextBoat extends Activity
     //
     private void readSharedPreferences( SharedPreferences pPrefs )
     {
-        
-        mShowAllBulletinIfEmpty = pPrefs.getBoolean(
-            PREFERENCE_SHOW_ALL_BULLETIN,
-            mShowAllBulletinIfEmpty);
-        
-        mBulletinLength = Integer.parseInt(
-            pPrefs.getString( 
-                PREFERENCE_BULLETIN_LENGTH,
-                "160" ) );
-        
-        pHourlyUpdateInterval = Integer.parseInt(
-            pPrefs.getString( 
-                PREFERENCE_HOURLY_UPDATE_INTERVAL,
-                "6" ) );
-        
-        mBulletinRegex = pPrefs.getString(
-            PREFERENCE_BULLETIN_REGEX,
-            getString(R.string.hardcoded_bainbridge_to_seattle_regex_bulletin));
-        
-        mShowTimeStamps = pPrefs.getBoolean(
-            PREFERENCE_SHOW_ADDITIONAL,
-            mShowTimeStamps );
-        
-        mFerryScheduleUrl = pPrefs.getString(  
-            PREFERENCE_FERRY_SCHEDULE_URL,     
-            getString(R.string.hardcoded_bainbridge_to_seattle_schedule_url) );
-            
-    	mPortTwoFerryCamUrl = pPrefs.getString(  
-    	    PREFERENCE_BAINBRIDGE_FERRY_CAM_URL, 
-    	    getString(R.string.hardcoded_bainbridge_to_seattle_ferry_cam_2_url) );
-    	    
-        mPortOneFerryCamUrl = pPrefs.getString(  
-            PREFERENCE_SEATTLE_FERRY_CAM_URL,   
-            getString(R.string.hardcoded_bainbridge_to_seattle_ferry_cam_1_url) );
-            
-        mDisableAutoLocation = pPrefs.getBoolean( 
-            PREFERENCE_DISABLE_AUTO_LOCATION,   
-            mDisableAutoLocation);
-            
-        mFerryPortOne = pPrefs.getString(
-            PREFERENCE_DESTINATION_A,
-            getString(R.string.hardcoded_bainbridge_to_seattle_port_1) );
-        
-        mFerryPortTwo = pPrefs.getString(
-            PREFERENCE_DESTINATION_B,
-            getString(R.string.hardcoded_bainbridge_to_seattle_port_2) );
-        
-        mRegex = pPrefs.getString(  
-            PREFERENCE_FERRY_SCHEDULE_REGEX,     
-            getString(R.string.hardcoded_bainbridge_to_seattle_regex) );
-        
-        
-        mCustomMode = pPrefs.getBoolean( 
-            PREFERENCE_CUSTOM_MODE,   
-            false);
-        
-        mPortOneLat = Double.valueOf( 
-            pPrefs.getString(  
-                PREFERENCE_PORT_ONE_LAT,     
-                getString(R.string.hardcoded_bainbridge_to_seattle_port_1_lat) ) );
-        
-        mPortOneLong = Double.valueOf(
-            pPrefs.getString(  
-                PREFERENCE_PORT_ONE_LONG,     
-                getString(R.string.hardcoded_bainbridge_to_seattle_port_1_long) ) );
-        
-        mPortTwoLat = Double.valueOf(
-            pPrefs.getString(  
-                PREFERENCE_PORT_TWO_LAT,     
-                getString(R.string.hardcoded_bainbridge_to_seattle_port_2_lat) ) );
-                
-        mPortTwoLong = Double.valueOf(
-            pPrefs.getString(  
-                PREFERENCE_PORT_TWO_LONG,     
-                getString(R.string.hardcoded_bainbridge_to_seattle_port_2_long) ) );
-        
-        mVesselWatchUrl = pPrefs.getString(
-                PREFERENCE_VESSEL_WATCH_URL,
-                getString(R.string.hardcoded_bainbridge_to_seattle_vessel_watch_url) );
-          
     }
     
     
@@ -984,20 +878,6 @@ public class NextBoat extends Activity
         }
         return foo;
     }
-    
-    //
-    //..launch our preferences menu activity..
-    //
-    private void launchPreferencesFxn()
-    {
-        Intent intent = 
-            new Intent( 
-                this, 
-                MyPreferences.class );
-        startActivity( intent );
-    }
-    
-    
     
     //
     //..open web page to ferry schedule..
