@@ -20,6 +20,7 @@
 
 package org.aschyiel.nextboat;
 
+import org.aschyiel.nextboat.DeparturesList;
 import org.aschyiel.nextboat.DownloadWebPage;
 import org.aschyiel.nextboat.FerryObject;
 
@@ -126,23 +127,14 @@ public class NextBoat extends Activity
         
         mFerryObjectArray = new ArrayList<FerryObject>();
         
-        //..as will be user defined later..
-        mSharedPreferences = this.getSharedPreferences( 
-            PREFERENCE_NAME, 
-            Context.MODE_PRIVATE );
-        
-        readSharedPreferences( mSharedPreferences );
-        
         //..init..
         mFerryDestination = mFerryPortOne;
         
         //..assign view vars (text, buttons, etc)..
-        setupViews();
-        //..set color options..
-        setupViewColors();
+        _initViews();
         
         //..set rel. layout's background color..
-        setupBackgroundColor();
+        _setupBackgroundColour();
         
         mLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         
@@ -246,7 +238,7 @@ public class NextBoat extends Activity
         final Boolean b = writeSharedPreferencesIfNeeded();
         readSharedPreferences( mSharedPreferences );
         
-        setupViewColors();
+        _setupTextColour();
         
         setupBackgroundColor();
         
@@ -359,22 +351,18 @@ public class NextBoat extends Activity
     //..associate our views from main.xml by id..
     //..also bind click-fxns to buttons..
     //
-    private void setupViews()
+    private void _initViews()
     {
         
         textView = (TextView) findViewById( R.id.id_text );
         textViewLabel = (TextView) findViewById( R.id.id_text_label );
         textViewDeparting = (TextView) findViewById( R.id.id_text_departing );
-        //textViewTargetBoat = (TextView) findViewById( R.id.id_text_target_boat );
         
         textViewChecked = (TextView) findViewById( R.id.id_text_checked );
         textViewDownloaded = (TextView) findViewById( R.id.id_text_download );
         
-        //mBulletinTextView = (TextView) findViewById( R.id.id_bulletin );
         ScrollView scrollView = (ScrollView) findViewById( R.id.id_scrollview );
         mBulletinTextView = (TextView) scrollView.findViewById( R.id.id_bulletin );
-        
-        //textViewDepartingLabel = (TextView) findViewById( R.id.id_lbl_departing );
         
         mButtonOne   = (Button) findViewById( R.id.id_button_one );
         mButtonTwo   = (Button) findViewById( R.id.id_button_two );
@@ -405,92 +393,27 @@ public class NextBoat extends Activity
     public static final String PREFERENCE_BACKGROUND_COLOR = "PreferenceBackgroundColor";
     public static final String DEFAULT_BACKGROUND_COLOR = "0";
     
-    //
-    //..accept a number between 0 and 10,..
-    //..and return a standard color..
-    //
-    public static int getColorFromSwitch( int pIndex )
+    /**
+    * Set the text-colour for all of the view components.
+    */
+    private void _setupTextColour()
     {
-        int zColor = 0;
-        /*
-        0,     1,    2,    3,      4,    5,     6,      7,       8,   9,     10.
-        BLACK, BLUE, CYAN, DKGRAY, GRAY, GREEN, LTGRAY, MAGENTA, RED, WHITE, YELLOW
-        */
-        
-        switch ( pIndex )
-        {
-            case 0:
-                zColor = Color.BLACK;
-                break;
-            case 1:
-                zColor = Color.BLUE;
-                break;
-            case 2:
-                zColor = Color.CYAN;
-                break;
-            case 3:
-                zColor = Color.DKGRAY;
-                break;
-            case 4:
-                zColor = Color.GRAY;
-                break;
-            case 5:
-                zColor = Color.GREEN;
-                break;
-            case 6:
-                zColor = Color.LTGRAY;
-                break;
-            case 7:
-                zColor = Color.MAGENTA;
-                break;
-            case 8:
-                zColor = Color.RED;
-                break;
-            case 9:
-                zColor = Color.WHITE;
-                break;
-            case 10:
-                zColor = Color.YELLOW;
-                break;
-            default:
-                zColor = Color.BLACK;
-        }
-        return zColor;
+      int textColour = Color.GREEN;
+      textView.setTextColor(           textColour );
+      textViewLabel.setTextColor(      textColour );
+      textViewChecked.setTextColor(    textColour );
+      textViewDownloaded.setTextColor( textColour );
+      textViewDeparting.setTextColor(  textColour );
+      mBulletinTextView.setTextColor(  textColour );
     }
     
-    //..set textColor..
-    private void setupViewColors()
+    /**
+    * Set the view's background colour.
+    */
+    private void _setupBackgroundColour()
     {
-        final int zColorStateListIndex = Integer.parseInt(
-            mSharedPreferences.getString(  
-                PREFERENCE_TEXT_COLOR,     
-                DEFAULT_TEXT_COLOR )
-        );
-        
-        int zColor = getColorFromSwitch( zColorStateListIndex );
-        
-        textView.setTextColor(           zColor );
-        textViewLabel.setTextColor(      zColor );
-        textViewChecked.setTextColor(    zColor );
-        textViewDownloaded.setTextColor( zColor );
-        textViewDeparting.setTextColor(  zColor );
-        //textViewTargetBoat.setTextColor( zColor );
-        mBulletinTextView.setTextColor(  zColor );
-        //textViewDepartingLabel.setTextColor( zColor );
-        
-    }
-    
-    private void setupBackgroundColor()
-    {
-        RelativeLayout rl = (RelativeLayout)findViewById( R.id.id_main_relative_layout );
-        
-        final int zColorIndex =  Integer.parseInt(
-            mSharedPreferences.getString(  
-                PREFERENCE_BACKGROUND_COLOR,     
-                DEFAULT_BACKGROUND_COLOR )
-        );
-            
-        rl.setBackgroundColor( getColorFromSwitch( zColorIndex ) );
+      RelativeLayout rl = (RelativeLayout)findViewById( R.id.id_main_relative_layout );
+      rl.setBackgroundColor( Color.BLACK );
     }
     
     private void setBlurFxn()
@@ -812,7 +735,7 @@ public class NextBoat extends Activity
         Intent intent = 
             new Intent( 
                 this, 
-                MyScheduleList.class );
+                DeparturesList.class );
         intent.putExtra( "theList", s );
         
         //.. x can be -1 ..
@@ -856,7 +779,7 @@ public class NextBoat extends Activity
          if (requestCode == TARGET_BOAT_REQUEST) {
              if (resultCode == Activity.RESULT_OK ) {
                  final int targetBoatIndex = new Integer(
-                        pData.getExtras().getString( MyScheduleList.TARGET_BOAT ) );
+                        pData.getExtras().getString( DeparturesList.TARGET_BOAT ) );
                  mTargetBoat = mFerryObjectArray.get( targetBoatIndex );
                  mTargetBoatIndex = targetBoatIndex;
                  //updateTargetBoatText();

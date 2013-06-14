@@ -63,7 +63,7 @@ import java.lang.String;
 /**
 * This view displays a list of departing boats times.
 */
-public class MyScheduleList extends ListActivity
+public class DeparturesList extends ListActivity
 {
     private static final String TAG = "MyListView";
     
