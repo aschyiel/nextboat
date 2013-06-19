@@ -39,7 +39,7 @@ public class Storage extends SQLiteOpenHelper
 
   private static final int DATABASE_VERSION = 1;
 
-  private static final String DATABASE_NAME = 'nextboat';
+  private static final String DATABASE_NAME = "nextboat";
 
   //---------------------------------
   //
@@ -96,14 +96,14 @@ public class Storage extends SQLiteOpenHelper
     for ( FerryObject ferry : ferries )
     {
       ContentValues row = new ContentValues();
-      row.put( 'route',       route );
-      row.put( 'is_weekday',  isWeekday );
-      row.put( 'leaving',     ferry.getLeaving() );
-      row.put( 'destination', ferry.getDestination() );
-      row.put( 'time',        ferry.getTime() );
-      row.put( 'am_pm',       ferry.getAmPm() );
-      row.put( 'vessel',      ferry.getVessel() );
-      db.insert( 'departures', null, row );
+      row.put( "route",       route );
+      row.put( "is_weekday",  isWeekday );
+      row.put( "leaving",     ferry.getLeaving() );
+      row.put( "destination", ferry.getDestination() );
+      row.put( "time",        ferry.getTime() );
+      row.put( "am_pm",       ferry.getAmPm() );
+      row.put( "vessel",      ferry.getVessel() );
+      db.insert( "departures", null, row );
     }
 
     db.close();
@@ -146,13 +146,13 @@ public class Storage extends SQLiteOpenHelper
 
         Map<String, Method> setters = new HashMap<String, Method>();
         Class klass = ( new FerryObject() ).getClass();
-        setters.put( 'route',       klass.getMethod( 'setRoute' ) );
-        setters.put( 'is_weekday',  klass.getMethod( 'setIsWeekday' ) );
-        setters.put( 'leaving',     klass.getMethod( 'setLeaving' ) );
-        setters.put( 'destination', klass.getMethod( 'setDestination' ) );
-        setters.put( 'time',        klass.getMethod( 'setTime' ) );
-        setters.put( 'am_pm',       klass.getMethod( 'setAmPm' ) );
-        setters.put( 'vessel',      klass.getMethod( 'setVessel' ) );
+        setters.put( "route",       klass.getMethod( "setRoute" ) );
+        setters.put( "is_weekday",  klass.getMethod( "setIsWeekday" ) );
+        setters.put( "leaving",     klass.getMethod( "setLeaving" ) );
+        setters.put( "destination", klass.getMethod( "setDestination" ) );
+        setters.put( "time",        klass.getMethod( "setTime" ) );
+        setters.put( "am_pm",       klass.getMethod( "setAmPm" ) );
+        setters.put( "vessel",      klass.getMethod( "setVessel" ) );
 
         do {
           FerryObject ferry = new FerryObject();
