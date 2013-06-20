@@ -22,6 +22,10 @@ package org.aschyiel.nextboat;
 
 import android.database.sqlite.SQLiteOpenHelper;
 
+import java.lang.reflect.Method;
+import java.util.Map;
+import java.util.HashMap;
+
 /**
 * The Storage class handles talking to the android sqlite database for reading
 * and writing nextboat data, such as ferry departures.
@@ -59,6 +63,8 @@ public class Storage extends SQLiteOpenHelper
         "id integer primary key,"+
         "route text,"+
         "is_weekday text,"+
+        "leaving text,"+
+        "destination text,"+
         "am_pm text,"+
         "time text,"+
         "vessel text"+
@@ -76,13 +82,13 @@ public class Storage extends SQLiteOpenHelper
   * Write a bunch of ferries belonging to a single route to disc.
   *
   * @public
-  * @param (ArrayList<FerryObject>) ferries is what we're serializing.
+  * @param (ArrayList<Ferry>) ferries is what we're serializing.
   * @param (String) is the ferry route.
   * @return void
   */
-  public void saveRoute( ArrayList<FerryObject> ferries )
+  public void saveRoute( ArrayList<Ferry> ferries )
   {
-    FerryObject sample = ferries.get(0);
+    Ferry sample = ferries.get(0);
     String route       = sample.getRoute();
     String isWeekday   = sample.getIsWeekday().toString();
 
@@ -93,7 +99,7 @@ public class Storage extends SQLiteOpenHelper
         "route='"+ route +"',"+
         "is_weekday='"+ isWeekday +"'" );
 
-    for ( FerryObject ferry : ferries )
+    for ( Ferry ferry : ferries )
     {
       ContentValues row = new ContentValues();
       row.put( "route",       route );
@@ -115,15 +121,15 @@ public class Storage extends SQLiteOpenHelper
   * @public
   * @param route (String) is the route name we're reading in from.
   * @param isWeekday (Boolean); Are we looking for the weekday vs. weekend schedule?
-  * @return ArrayList<FerryObject>
+  * @return ArrayList<Ferry>
   * @see http://developer.android.com/reference/android/database/sqlite/SQLiteCursor.html
   * @see http://developer.android.com/reference/android/database/Cursor.html
   * @see http://stackoverflow.com/questions/160970/how-do-i-invoke-a-java-method-when-given-the-method-name-as-a-string
   */
-  public ArrayList<FerryObject> readRoute( String route, Boolean isWeekday )
+  public ArrayList<Ferry> readRoute( String route, Boolean isWeekday )
   {
     SQLiteDatabase db = this.getWritableDatabase();
-    ArrayList<FerryObject> ferries = new ArrayList<FerryObject>();
+    ArrayList<Ferry> ferries = new ArrayList<Ferry>();
 
     Cursor cursor = db.rawQuery( "select * from departures where "+
         "route='"+ route +"',"+
@@ -132,12 +138,11 @@ public class Storage extends SQLiteOpenHelper
     if ( cursor.moveToFirst() ) {
 
         // Make it easy to lookup column-names via the cursor.
-        String[] columns = cursor.getColumnNames();
+        String[] columnNames = cursor.getColumnNames();
         Map<String, Integer> columnIndices = new HashMap<String, Integer>();
-        for ( int i = 0; i < columns.length; i++ )
+        for ( int i = 0; i < columnNames.length; i++ )
         {
-          String columnName = columns[ i ];
-          columnIndices[ columnName ] = cursor.getColumnIndex( columnName );
+          columnIndices.put( columnName, cursor.getColumnIndex( columnNames[ i ] ) );
         }
 
         //
@@ -145,7 +150,7 @@ public class Storage extends SQLiteOpenHelper
         //
 
         Map<String, Method> setters = new HashMap<String, Method>();
-        Class klass = ( new FerryObject() ).getClass();
+        Class klass = ( new Ferry() ).getClass();
         setters.put( "route",       klass.getMethod( "setRoute" ) );
         setters.put( "is_weekday",  klass.getMethod( "setIsWeekday" ) );
         setters.put( "leaving",     klass.getMethod( "setLeaving" ) );
@@ -155,7 +160,7 @@ public class Storage extends SQLiteOpenHelper
         setters.put( "vessel",      klass.getMethod( "setVessel" ) );
 
         do {
-          FerryObject ferry = new FerryObject();
+          Ferry ferry = new Ferry();
           for ( Map.Entry<String, Integer> it : columnIndices.entrySet() )
           {
             String columnName = it.getKey();

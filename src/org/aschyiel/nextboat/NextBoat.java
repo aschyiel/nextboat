@@ -22,7 +22,7 @@ package org.aschyiel.nextboat;
 
 import org.aschyiel.nextboat.DeparturesList;
 import org.aschyiel.nextboat.DownloadWebPage;
-import org.aschyiel.nextboat.FerryObject;
+import org.aschyiel.nextboat.Ferry;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -101,9 +101,9 @@ public class NextBoat extends Activity
   
   private String mSimpleDateFormatString = "hh:mm a, MMM-dd";
   
-  private ArrayList<FerryObject> mFerryObjectArray;
-  private FerryObject mTargetBoat;
-  private FerryObject mNextBoat;
+  private ArrayList<Ferry> mFerryArray;
+  private Ferry mTargetBoat;
+  private Ferry mNextBoat;
   
   private int mTargetBoatIndex;
   
@@ -135,7 +135,7 @@ public class NextBoat extends Activity
     super.onCreate( bundle );
     setContentView( R.layout.main );
     
-    mFerryObjectArray = new ArrayList<FerryObject>();
+    mFerryArray = new ArrayList<Ferry>();
     
     //..init..
     _destination = _destinationA;
@@ -496,7 +496,7 @@ public class NextBoat extends Activity
 
     departures.putExtra( "theList", _getScheduleAsCsv() );
     departures.putExtra( "theIndex",
-        Integer.toString( mFerryObjectArray.indexOf( mNextBoat ) ) );    //..can be -1..
+        Integer.toString( mFerryArray.indexOf( mNextBoat ) ) );    //..can be -1..
     departures.putExtra( "theTitle",
         _destination +
             ( isWeekEnd() ) ? " (Weekend)" : " (Weekday)" );
@@ -511,7 +511,7 @@ public class NextBoat extends Activity
   */
   private String _getScheduleAsCsv()
   {
-    return android.text.TextUtils.join( ',', mFerryObjectArray );
+    return android.text.TextUtils.join( ',', mFerryArray );
   }
 
   /**
@@ -538,13 +538,13 @@ public class NextBoat extends Activity
   * Update the view's "next-sailing" label.
   *
   * @private
-  * @param next (FerryObject) is the next sailing.
+  * @param next (Ferry) is the next sailing.
   * @return void
   */
-  private void _displayNextSailing( FerryObject next )
+  private void _displayNextSailing( Ferry next )
   {
     textViewDeparting.setText( ( null == next )?
-        '' : next.prettyPrintBoat()+ " departs in : " + next.printWhenBoatLeaves() );
+        "" : next.prettyPrintBoat()+ " departs in : " + next.printWhenBoatLeaves() );
   }
 
   //
@@ -560,25 +560,25 @@ public class NextBoat extends Activity
       initNextFerry();
     }
     //..TODO compare current time and return the right one ..
-    if ( mFerryObjectArray.size() == 0 )
+    if ( mFerryArray.size() == 0 )
     {
       _displayNextSailing( false );
       return "";
     }
     
     //..get next time..
-    ArrayList<FerryObject> localFerryList = new ArrayList<FerryObject>();
+    ArrayList<Ferry> localFerryList = new ArrayList<Ferry>();
     Date now = Calendar.getInstance().getTime();
-    for ( int i=0; i < mFerryObjectArray.size(); i++ )
+    for ( int i=0; i < mFerryArray.size(); i++ )
     {
       //..if we could catch the boat..
-      if ( now.before( mFerryObjectArray.get(i).getDate() ) )
+      if ( now.before( mFerryArray.get(i).getDate() ) )
       {
-        localFerryList.add( mFerryObjectArray.get( i ) );
+        localFerryList.add( mFerryArray.get( i ) );
       }
     }
     
-    FerryObject zNextBoat = new FerryObject();
+    Ferry zNextBoat = new Ferry();
     if ( localFerryList.size() <= 0 )
     {
       mNextBoat = null;
@@ -618,9 +618,9 @@ public class NextBoat extends Activity
       for ( var i = 1; i < 5; i++ ) {
         String content = matcher.group( i );
         if ( null != content ) {
-          parsed.add( ( content.equals( 'Midnight' ) ||
-            content.equals( 'Noon' ) )?
-              '12:00' : content );
+          parsed.add( ( content.equals( "Midnight" ) ||
+            content.equals( "Noon" ) )?
+              "12:00" : content );
         }
       }
     }
@@ -634,7 +634,7 @@ public class NextBoat extends Activity
   private void initNextFerry()
   {
     //..clear variables..
-    mFerryObjectArray.clear();
+    mFerryArray.clear();
     mFerryScheduleHtmlString = "";
     
     //..set our local var mFerryScheduleHtmlString..
@@ -648,18 +648,18 @@ public class NextBoat extends Activity
       
       //..TODO..remove debug log..
       
-      ArrayList<FerryObject> ki = populateFerryObjectList( li );
+      ArrayList<Ferry> ki = populateFerryList( li );
       
-      mFerryObjectArray = correctFerryListForLateNights( ki );
+      mFerryArray = correctFerryListForLateNights( ki );
     }
   }
 
     //
-    //..used to populate mFerryObjectArray with FerryObjects..
+    //..used to populate mFerryArray with Ferrys..
     //
-    private ArrayList<FerryObject> populateFerryObjectList( ArrayList pLi )
+    private ArrayList<Ferry> populateFerryList( ArrayList pLi )
     {
-        ArrayList<FerryObject> zList = new ArrayList<FerryObject>();
+        ArrayList<Ferry> zList = new ArrayList<Ferry>();
         int k = pLi.size();
         String aa = "";
         String HHMM = "";
@@ -702,9 +702,9 @@ public class NextBoat extends Activity
 
                 boat = elem;
                 
-                //..create FerryObject..
-                FerryObject ferryObject = new FerryObject();
-                ferryObject.setTime( HHMM, aa, bNextDay );
+                //..create Ferry..
+                Ferry ferryObject = new Ferry();
+                ferryObject.setCalendar( HHMM, aa, bNextDay );
                 //..TODO..might be null boat..
                 ferryObject.setBoat( boat );
                 ferryObject.setLeaving( _destination );
