@@ -156,32 +156,7 @@ public class NextBoat extends Activity
   */
   @Override
   public boolean onOptionsItemSelected( MenuItem item ) {
-    // Handle item selection
-    switch ( item.getItemId() ) {
-    case R.id.id_refresh:
-      refreshFxn();
-      return true;
-    case R.id.id_view_all:
-      _showDepartures();
-      return true;
-    case R.id.id_go_online:
-      _showScheduleWebPage();
-      return true;
-    case R.id.id_ferry_cam:
-      _showFerryCam();
-      return true;
-    case R.id.id_vessel_watch:
-      _showVesselWatch();
-      return true;
-    case R.id.id_go_alert:
-      _showBulletinPage();
-      return true;
-    case R.id.id_view_alert_bulletin:
-      viewAlertBulletinDialog();
-      return true;
-    default:
-      return super.onOptionsItemSelected(item);
-    }
+    return OptionsMenu.onOptionsItemSelected( this, item );
   }
 
   //..note: onResume() gets called immediately after onCreate..
@@ -202,6 +177,84 @@ public class NextBoat extends Activity
     textView.setText( getNextFerry() );
     setLastCheckedFxn();
     readFerryBulletin();
+  }
+
+  /**
+  * Derive the departures-list's activity title.
+  *
+  * @public
+  * @return (String)
+  */
+  public String getDeparturesTitle()
+  {
+    return _destination + ( ( isWeekEnd() ) ? " (Weekend)" : " (Weekday)" );
+  }
+
+  /**
+  * Get the index of the next-boat within the departures list.
+  * 
+  * @public
+  * @return (String)
+  */
+  public String getNextDepartureIndex()
+  {
+    return Integer.toString( mFerryArray.indexOf( mNextBoat ) );    //..can be -1..
+  }
+
+  /**
+  * Serialize the ferry schedule as a CSV string.
+  *
+  * @public
+  * @return (String)
+  */
+  public String getDeparturesScheduleAsCsv()
+  {
+    return android.text.TextUtils.join( ',', mFerryArray );
+  }
+
+  /**
+  * Get the appropriate ferry-cam url.
+  *
+  * @public
+  * @return (String)
+  */
+  public String getFerryCamUrl()
+  {
+    return ( _destination.equals( _destinationA ) )?
+        getDestinationAFerryCamUrl() : getDestinationBFerryCamUrl();
+  }
+
+  /**
+  * Return the web-page link to the WSDOT ferry schedule.
+  *
+  * @public
+  * @return (String)
+  */
+  public String getFerryScheduleUrl()
+  {
+    return mFerryScheduleUrl;
+  }
+
+  /**
+  * Return the ferry alert bulletin web-page url.
+  *
+  * @public
+  * @return (String)
+  */
+  public String getBulletinUrl()
+  {
+    return R.string.alert_bulletin_url;
+  }
+
+  /**
+  * Returns the link to the WSDOT vessel-watch web-page.
+  *
+  * @public
+  * @return (String)
+  */
+  public String getVesselWatchUrl()
+  {
+    return mVesselWatchUrl;
   }
 
   //---------------------------------
@@ -345,19 +398,6 @@ public class NextBoat extends Activity
         .setBackgroundColor( Color.BLACK );
   }
 
-  /**
-  * Bring up the WSDOT Vessel Watch webpage.
-  *
-  * @see gov.wa.wsdot.android.wsdot/.SplashScreen
-  */
-  private void _showVesselWatch()
-  {
-    // TODO: Consider directly launching the WSDOT app.
-    startActivity( new Intent(
-        Intent.ACTION_VIEW,
-        Uri.parse( mVesselWatchUrl ) ) );
-  }
-
   private String manuallyGetFerryDestination()
   {
       //..set to manual..
@@ -472,66 +512,6 @@ public class NextBoat extends Activity
 
     DownloadWebPage downloader = new DownloadWebPage( this, mFerryScheduleUrl, whichFile() );
     downloader.start();
-  }
-
-  /**
-  * Show the live ferry-cam image to the user.
-  */
-  private void _showFerryCam()
-  {
-    String link = ( _destination.equals( _destinationA ) )?
-        getDestinationAFerryCamUrl() : getDestinationBFerryCamUrl();
-
-    startActivity( new Intent(
-        Intent.ACTION_VIEW,
-        Uri.parse( link ) ) );
-  }
-
-  /**
-  * Bring up a schedule listing all of the ferry departures for our current destination.
-  */
-  private void _showDepartures()
-  {
-    Intent departures = new Intent( this, DeparturesList.class );
-
-    departures.putExtra( "theList", _getScheduleAsCsv() );
-    departures.putExtra( "theIndex",
-        Integer.toString( mFerryArray.indexOf( mNextBoat ) ) );    //..can be -1..
-    departures.putExtra( "theTitle",
-        _destination +
-            ( isWeekEnd() ) ? " (Weekend)" : " (Weekday)" );
-
-    startActivity( departures );
-  }
-
-  /**
-  * Serialize the ferry schedule as a CSV string.
-  *
-  * @return (String)
-  */
-  private String _getScheduleAsCsv()
-  {
-    return android.text.TextUtils.join( ',', mFerryArray );
-  }
-
-  /**
-  * Open the ferry schedule web page.
-  */
-  private void _showScheduleWebPage()
-  {
-    startActivity( new Intent(
-        Intent.ACTION_VIEW,
-        Uri.parse( mFerryScheduleUrl ) ) );
-  }
-  
-  /**
-  * Open the ferry alerts/bulletins web page.
-  */
-  private void _showBulletinPage()
-  {
-    startActivity( new Intent (
-        Intent.ACTION_VIEW,
-        Uri.parse( getString( R.string.alert_bulletin_url ) ) ) );
   }
 
   /**
