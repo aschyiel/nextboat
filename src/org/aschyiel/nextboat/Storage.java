@@ -20,11 +20,15 @@ package org.aschyiel.nextboat;
 * under the License.
 */
 
+import android.content.ContentValues;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.ArrayList;
 
 /**
 * The Storage class handles talking to the android sqlite database for reading
@@ -142,7 +146,8 @@ public class Storage extends SQLiteOpenHelper
         Map<String, Integer> columnIndices = new HashMap<String, Integer>();
         for ( int i = 0; i < columnNames.length; i++ )
         {
-          columnIndices.put( columnName, cursor.getColumnIndex( columnNames[ i ] ) );
+          String columnName = columnNames[ i ];
+          columnIndices.put( columnName, cursor.getColumnIndex( columnName ) );
         }
 
         //
