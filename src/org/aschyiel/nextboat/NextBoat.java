@@ -122,6 +122,9 @@ public class NextBoat extends Activity
   private TextView mBulletinTextView;
   private int mBulletinLength;
 
+  private OptionsMenu _options;
+  private Sextant _sextant;
+
   //---------------------------------
   //
   // Public/Overriden Methods
@@ -136,6 +139,8 @@ public class NextBoat extends Activity
     setContentView( R.layout.main );
     
     mFerryArray = new ArrayList<Ferry>();
+    _options = new OptionsMenu();
+    _sextant = new Sextant();
     
     //..init..
     _destination = _destinationA;
@@ -156,7 +161,7 @@ public class NextBoat extends Activity
   */
   @Override
   public boolean onOptionsItemSelected( MenuItem item ) {
-    return OptionsMenu.onOptionsItemSelected( this, item );
+    return _options.onOptionsItemSelected( this, item );
   }
 
   //..note: onResume() gets called immediately after onCreate..
@@ -257,6 +262,17 @@ public class NextBoat extends Activity
     return mVesselWatchUrl;
   }
 
+  /**
+  * Bring up the alert-bulletin view.
+  *
+  * @public
+  * @return void
+  */
+  public void viewAlertBulletinDialog()
+  {
+    // TODO
+  }
+
   //---------------------------------
   //
   // Private Methods
@@ -340,21 +356,21 @@ public class NextBoat extends Activity
     mButtonTwo   = (Button) findViewById( R.id.id_button_two );
     mButtonThree = (Button) findViewById( R.id.id_button_three );
     
-    mButtonOne.setOnClickListener(new View.OnClickListener() {
-      public void onClick(View v) {
-        _showDepartures();
+    mButtonOne.setOnClickListener( new View.OnClickListener() {
+      public void onClick( View v ) {
+        _options.showDepartures( this );
       }
     });
     
-    mButtonTwo.setOnClickListener(new View.OnClickListener() {
-      public void onClick(View v) {
-        _showFerryCam();
+    mButtonTwo.setOnClickListener( new View.OnClickListener() {
+      public void onClick( View v ) {
+        _options.showFerryCam( this );
       }
     });
     
-    mButtonThree.setOnClickListener(new View.OnClickListener() {
-      public void onClick(View v) {
-        _showVesselWatch();
+    mButtonThree.setOnClickListener( new View.OnClickListener() {
+      public void onClick( View v ) {
+        _options.showVesselWatch( this );
       }
     });
 
@@ -397,106 +413,6 @@ public class NextBoat extends Activity
     ( (RelativeLayout) findViewById( R.id.id_main_relative_layout ) )
         .setBackgroundColor( Color.BLACK );
   }
-
-  private String manuallyGetFerryDestination()
-  {
-      //..set to manual..
-      final int n = Integer.parseInt( 
-          mSharedPreferences.getString(
-              "ManualDestination",
-              "0") );
-      
-      return (0 == n) ? _destinationA : _destinationB;
-  }
-    
-    final static String PREFERENCE_LAST_PORT = "PreferenceLastPort";
-    
-    //
-    private void saveDestination( String pDestination )
-    {
-        if ( !pDestination.equals( getSavedDestination() )  )
-        {
-            SharedPreferences.Editor editor = mSharedPreferences.edit();
-            editor.putString( PREFERENCE_LAST_PORT, pDestination );
-            editor.commit();    //..save..
-        }
-    }
-    
-    private String getSavedDestination()
-    {
-        //..default to portOne..
-        final String zPort = mSharedPreferences.getString(  
-                    PREFERENCE_LAST_PORT,     
-                    _destinationA );
-        
-        return zPort;
-    }
-    
-    //..
-    private void handleAutoLocation()
-    {
-        final String zPreviousDestination = _destination;
-        
-        final String zCurrentDestination = (mDisableAutoLocation) ? 
-                manuallyGetFerryDestination() : automagicallyFindDestination();
-        
-        saveDestination( zCurrentDestination );
-        
-        //..set global..
-        _destination = zCurrentDestination;
-            
-        //..meaning we chose something new..
-        if ( !zCurrentDestination.equals( zPreviousDestination ) )
-        {
-            initNextFerry();
-        }
-    }
-    
-    private String automagicallyFindDestination()
-    {
-        //..http://www.damonkohler.com/2009/02/android-recipes.html
-        
-        LocationManager locationManager = (LocationManager) getSystemService( Context.LOCATION_SERVICE );
-        Location loc = locationManager.getLastKnownLocation( LocationManager.GPS_PROVIDER );
-        if (loc == null)
-        {
-          // Fall back to coarse location.
-          loc = locationManager.getLastKnownLocation( LocationManager.NETWORK_PROVIDER );
-        }
-        if ( loc != null )
-        {
-            
-            Location location1 = new Location("providerName");
-            location1.setLatitude( mPortOneLat );
-            location1.setLongitude( mPortOneLong );
-            
-            Location location2 = new Location("providerName");
-            location2.setLatitude( mPortTwoLat );
-            location2.setLongitude( mPortTwoLong );
-            
-            final float distance1 = loc.distanceTo( location1 );
-            final float distance2 = loc.distanceTo( location2 );
-            
-            //..if the float comparison is negative, that means portTwo is closer..            
-            if ( java.lang.Float.compare( distance2 , distance1 ) < 0 )
-            {
-                return _destinationB;
-            }
-            else if ( java.lang.Float.compare( distance2 , distance1 ) > 0 )
-            {
-                return _destinationA;
-            }
-            else
-            {
-                return getSavedDestination();
-            }
-        }
-        else
-        {
-            return getSavedDestination();
-        }
-    }
-    
 
   /**
   * Download the latest ferry schedule(s).
