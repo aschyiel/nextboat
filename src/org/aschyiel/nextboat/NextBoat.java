@@ -161,7 +161,9 @@ public class NextBoat extends Activity
   */
   @Override
   public boolean onOptionsItemSelected( MenuItem item ) {
-    return _options.onOptionsItemSelected( this, item );
+    boolean b = _options.onOptionsItemSelected( this, item );
+    return ( b )?
+        b : super.onOptionsItemSelected( item );
   }
 
   //..note: onResume() gets called immediately after onCreate..

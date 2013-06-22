@@ -22,109 +22,66 @@ package org.aschyiel.nextboat;
 
 import org.aschyiel.nextboat.NextBoat;
 
+import android.content.Context;
+import android.location.Location;
+import android.location.LocationManager;
+import android.net.ConnectivityManager;
+
 /**
 * This class is responsible for owning the "where are we?" question.
 */
 public class Sextant
 {
- 
-  private String manuallyGetFerryDestination()
+
+  /**
+  * Calculate the closes location given our current position.
+  *
+  * @public
+  * @param (Context) context is the parent activity.
+  * @param (double) lat1 is location-1's latitude.
+  * @param (double) lon1 is location-1's longitude.
+  * @param (double) lat2 is location-2's latitude.
+  * @param (double) lon2 is location-2's longitude.
+  * @return (int) Is 1 if location-1 is closer, or 2 if location-2 is closer,
+  *         and 0 if they are tied;
+  *         Returns -1 if our current-location is unavailable.
+  * @see http://www.damonkohler.com/2009/02/android-recipes.html
+  */
+  public int getClosestLocation( Context context, double lat1, double lon1,
+                                 double lat2, double lon2 )
   {
-      //..set to manual..
-      final int n = Integer.parseInt( 
-          mSharedPreferences.getString(
-              "ManualDestination",
-              "0") );
-      
-      return (0 == n) ? _destinationA : _destinationB;
-  }
-    
-    final static String PREFERENCE_LAST_PORT = "PreferenceLastPort";
-    
+    LocationManager manager = (LocationManager) context.getSystemService( Context.LOCATION_SERVICE );
+
     //
-    private void saveDestination( String pDestination )
+    // Get our current position, aka "you are here".
+    // Try GPS first, falling back to coarse location if it's unavailable.
+    //
+
+    Location currentLocation = manager.getLastKnownLocation( LocationManager.GPS_PROVIDER );
+    if ( null == currentLocation )
     {
-        if ( !pDestination.equals( getSavedDestination() )  )
-        {
-            SharedPreferences.Editor editor = mSharedPreferences.edit();
-            editor.putString( PREFERENCE_LAST_PORT, pDestination );
-            editor.commit();    //..save..
-        }
+      currentLocation = manager.getLastKnownLocation( LocationManager.NETWORK_PROVIDER );
     }
+
+    if ( null == currentLocation ) {
+      return -1;
+    }
+
+    Location location1 = new Location( "providerName" );
+    location1.setLatitude(  lat1 );
+    location1.setLongitude( lon1 );
     
-    private String getSavedDestination()
-    {
-        //..default to portOne..
-        final String zPort = mSharedPreferences.getString(  
-                    PREFERENCE_LAST_PORT,     
-                    _destinationA );
-        
-        return zPort;
-    }
+    Location location2 = new Location( "providerName" );
+    location2.setLatitude(  lat2 );
+    location2.setLongitude( lon2 );
     
-    //..
-    private void handleAutoLocation()
-    {
-        final String zPreviousDestination = _destination;
-        
-        final String zCurrentDestination = (mDisableAutoLocation) ? 
-                manuallyGetFerryDestination() : automagicallyFindDestination();
-        
-        saveDestination( zCurrentDestination );
-        
-        //..set global..
-        _destination = zCurrentDestination;
-            
-        //..meaning we chose something new..
-        if ( !zCurrentDestination.equals( zPreviousDestination ) )
-        {
-            initNextFerry();
-        }
-    }
+    final float distance1 = currentLocation.distanceTo( location1 );
+    final float distance2 = currentLocation.distanceTo( location2 );
     
-    private String automagicallyFindDestination()
-    {
-        //..http://www.damonkohler.com/2009/02/android-recipes.html
-        
-        LocationManager locationManager = (LocationManager) getSystemService( Context.LOCATION_SERVICE );
-        Location loc = locationManager.getLastKnownLocation( LocationManager.GPS_PROVIDER );
-        if (loc == null)
-        {
-          // Fall back to coarse location.
-          loc = locationManager.getLastKnownLocation( LocationManager.NETWORK_PROVIDER );
-        }
-        if ( loc != null )
-        {
-            
-            Location location1 = new Location("providerName");
-            location1.setLatitude( mPortOneLat );
-            location1.setLongitude( mPortOneLong );
-            
-            Location location2 = new Location("providerName");
-            location2.setLatitude( mPortTwoLat );
-            location2.setLongitude( mPortTwoLong );
-            
-            final float distance1 = loc.distanceTo( location1 );
-            final float distance2 = loc.distanceTo( location2 );
-            
-            //..if the float comparison is negative, that means portTwo is closer..            
-            if ( java.lang.Float.compare( distance2 , distance1 ) < 0 )
-            {
-                return _destinationB;
-            }
-            else if ( java.lang.Float.compare( distance2 , distance1 ) > 0 )
-            {
-                return _destinationA;
-            }
-            else
-            {
-                return getSavedDestination();
-            }
-        }
-        else
-        {
-            return getSavedDestination();
-        }
-    }
-  
+    // Note: If the float comparison is negative, that means location-2 is closer.
+    int comparison = java.lang.Float.compare( distance2, distance1 );
+    return ( comparison < 0 )?
+        2 : ( comparison > 0 )?
+        1 : 0;
+  }
 }

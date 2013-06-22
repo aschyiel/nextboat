@@ -170,7 +170,7 @@ public class Ferry
   }
   public void setIsWeekday( String isWeekday )
   {
-    this.setIsWeekday( ( true ).toString().equals( isWeekday ) );
+    this.setIsWeekday( ( new Boolean( true ) ).toString().equals( isWeekday ) );
   }
   public void setIsWeekday( Boolean isWeekday )
   {
@@ -220,6 +220,13 @@ public class Ferry
 
   /**
   * @private
+  * @see Ferry#getRoute
+  * @see Ferry#setRoute
+  */
+  private String _route = null;
+
+  /**
+  * @private
   * @see Ferry#getIsWeekday
   * @see Ferry#setIsWeekday
   */
@@ -228,7 +235,6 @@ public class Ferry
   public static final String TAG = "Ferry";
   private Calendar _calendar;
   private String _boat = "?";
-  private String _leaving;
   private String mExtra = "";
   private Boolean mNull = false;
   
@@ -338,17 +344,6 @@ public class Ferry
   public long toLong()
   {
       return _calendar.getTime().getTime();
-  }
-  
-  public void setLeaving( String pLeaving )
-  {
-      //..ie. Leaving Seattle..
-      _leaving = pLeaving;
-  }
-  
-  public String getLeaving()
-  {
-      return _leaving;
   }
   
   public String print()

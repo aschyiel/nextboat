@@ -60,7 +60,7 @@ public class OptionsMenu
         activity.viewAlertBulletinDialog();
         return true;
       default:
-        return activity.super.onOptionsItemSelected( item );
+        return false;
     }
   }
 
