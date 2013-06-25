@@ -1,18 +1,233 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+/*
+* Licensed to the Apache Software Foundation (ASF) under one
+* or more contributor license agreements.  See the NOTICE file
+* distributed with this work for additional information
+* regarding copyright ownership.  The ASF licenses this file
+* to you under the Apache License, Version 2.0 (the
+* "License"); you may not use this file except in compliance
+* with the License.  You may obtain a copy of the License at
+*
+*   http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing,
+* software distributed under the License is distributed on an
+* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+* KIND, either express or implied.  See the License for the
+* specific language governing permissions and limitations
+* under the License.
+*/
+-->
 <resources>
+    <string name="app_name">nextboat</string>
+    
+    <!-- for schedule list menu -->
+    <string name="menu_schedule_go_back">Go Back</string>
+    
+    <string name="context_menu_target_boat">Set Target Boat</string>
+    
+    
+    <string name="last_refreshed">Last Refreshed :</string>
+    <string name="last_download" >Last Updated :  </string>
+    <string name="departing">Departs in:</string>
 
-  <string name="app_name">NextBoat</string>
-  <string name="string_name">text_string</string>
+    
+    <!-- for http stuff -->
+    <string name="template_user_agent">"%1$s/%2$s (Linux; Android)"</string>
+    
+    <string name="menu_view_all">Schedule</string>
+    <string name="menu_ferry_cam">Ferry Cam</string>
+    <string name="menu_vessel_watch">Vessel Watch</string>
+    
+    <string name="menu_go_online">Visit Web Page</string>
+    <string name="menu_preferences">Preferences</string>
+    
+    <string name="menu_refresh">Force-Refresh</string>
+    <string name="menu_download">Force-Update</string>
+    <string name="menu_clear_target_boat">Clear Target Boat</string>
+    
+    <!-- remove me? -->
+    <string name="text_refresh">Updating...</string>
+    <string name="preference_theme">Translucent</string>
+    <string name="preference_summary_theme">Enable Translucent Theme (requires restarting app)</string>
+    
+    
+    <!--preferences related-->
+    <string name="preference_open_browser">View Web Page(s)</string>
+    <string name="preference_visit_ferry_schedule_web_page">Visit Ferry Schedule Web Page</string>
+    <string name="preference_view_bainbridge_ferry_cam">View Bainbridge Ferry Cam</string>
+    <string name="preference_view_seattle_ferry_cam">View Seattle Ferry Cam</string>
+    
+    <string name="preference_game_settings">[ Options/Settings ]</string>
+    
+    
+    <string name="preference_download_html">Cache Ferry Schedule</string>
+    <string name="preference_summary_enable_download_html">Download and save the ferry schedule as an html file (NextBoat.html).</string>
+    <string name="preference_auto_location">Disable Auto Location</string>
+    <string name="preference_summary_disable_auto_location">Turn off AutoLocation; Determine the nearest ferry port of interest and select it for the user.</string>
+    
+    
+    <string name="preference_title_ferry_schedule_url">Ferry Schedule URL</string>
+    <string name="preference_summary_ferry_schedule_url">The Ferry Schedule URL we download/visit to determine our next boat(s).</string>
+    <string name="preference_dialog_title_ferry_schedule_url">TODO dialog</string>
+    <string name="preference_default_value_ferry_schedule_url">http://www.wsdot.wa.gov/ferries/Schedule/ScheduleDetail.aspx?departingterm=7&amp;arrivingterm=3&amp;roundtrip=true</string>
+    
+    
+    <string name="preference_title_bainbridge_ferry_cam_url">Bainbridge Ferry Cam</string>
+    <string name="preference_summary_bainbridge_ferry_cam_url">The URL to the Bainbridge Ferry Cam</string>
+    <string name="preference_dialog_title_bainbridge_ferry_cam_url">TODO dialog</string>
+    <!--note : we used &amp; to encode & -->
+    <string name="preference_default_value_bainbridge_ferry_cam_url"><![CDATA[http://206.63.218.8/axis-cgi/jpg/image.cgi?resolutiuon=CIF&camera=1]]></string>
+    
+    
+    
+    <string name="preference_title_seattle_ferry_cam_url">Seattle Ferry Cam</string>
+    <string name="preference_summary_seattle_ferry_cam_url">The URL to the Seattle Ferry Cam</string>
+    <string name="preference_dialog_title_seattle_ferry_cam_url">TODO dialog</string>
+    <!--note : we used &amp; to encode & -->
+    <string name="preference_default_value_seattle_ferry_cam_url"><![CDATA[http://206.63.218.7/axis-cgi/jpg/image.cgi?resolutiuon=CIF&camera=3]]></string>
+    
+    
+    <string name="preference_advanced">[ Advanced Settings ]</string>
+    <string name="preference_title_advanced_url">URL settings</string>
+    
+    <string name="preference_title_advanced_regex">Regex settings</string>
+    
+    
+    <string name="preference_title_ferry_schedule_regex">Regex</string>
+                  
+    <string name="preference_summary_ferry_schedule_regex">The Regular Expression pattern we use against our html, to match either the ferry time (hh:mm), the part of day (AM/PM), or the ferry boat\&apos;s name (ie. Wenatchee). </string>
+    <string name="preference_dialog_title_ferry_schedule_regex">Edit Regex (warning : not for noobs!)</string>
+    <string name="preference_default_value_ferry_schedule_regex"><![CDATA[(?:>(\\d?\\d:\\d\\d)</td>|(?:<td(?:.)*strong>(\\w+)</strong)|(?:<a(?:.)*vessel(?:.)*>(\\w+)</a>))]]></string>
+    
+    <string name="preference_title_substring_destination_a">Set Port 1</string>
+    <string name="preference_summary_substring_destination_a">Literally used for substring-ing and labeling for next boat, etc...</string>
+    <string name="preference_dialog_title_substring_destination_a">Port 1 (ie. "Leaving Seattle").</string>
+    <string name="preference_default_value_substring_destination_a">Leaving Seattle</string>
+    
+    
+    <string name="preference_title_substring_destination_b">Set Port 2</string>
+    <string name="preference_summary_substring_destination_b">Literally used for substring-ing and labeling for next boat, etc...</string>
+    <string name="preference_dialog_title_substring_destination_b">Port 2 (ie. "Leaving Bainbridge Island")</string>
+    <string name="preference_default_value_substring_destination_b">Leaving Bainbridge Island</string>
+    
+    
+    <string name="preference_about">[ About ]</string>
+    <string name="preference_misc">About</string>
+    <string name="preference_about_title">About nextboat</string>
+    <string name="preference_about_summary">nextboat was made by Ulysses Levy as a fun way to learn a little java/android.</string>
+    <string name="preference_licence_title">License</string>
+    <string name="preference_licence_summary">Licensed under the GNU General Public License, Version 3.0 (http://www.gnu.org/licenses/gpl.txt).</string>
+    <string name="preference_about_source">The source code for nextboat : ( http://code.google.com/p/nextboat/ )</string>    
+    <string name="preference_about_source_url">http://code.google.com/p/nextboat/</string>
 
-  <string name="menu_view_all">view all</string>
-  <string name="menu_ferry_cam">ferry cam</string>
-  <string name="menu_vessel_watch">vessel watch</string>
-  <string name="menu_view_alert_bulletin">view alert bulletin</string>
-  <string name="menu_go_online">go online</string>
-  <string name="menu_alert_bulletin">alert bulletin</string>
+    <string name="preference_title_manually_select_destination">Manually Select Port</string>
+    <string name="preference_summary_manually_select_destination">Select a port to leave from (ie port1 = Leaving Seattle).</string>
 
-  <string name="menu_schedule_go_back">go back</string>
+    <string name="alert_bulletin_url"><![CDATA[http://www.wsdot.wa.gov/ferries/schedule/bulletin.aspx]]></string>
+    <string name="menu_alert_bulletin">Visit Bulletin Page</string>
+    <string name="menu_view_alert_bulletin">View Bulletin</string>
 
-  <string name="context_menu_target_boat">target boat</string>
+    <!-- 
+    #
+    #..predefined ferry modes..
+    #
+    -->
+    <!-- Bainbridge Island/Seattle -->
+    <string name="hardcoded_bainbridge_to_seattle_schedule_url"><![CDATA[http://www.wsdot.wa.gov/ferries/Schedule/ScheduleDetail.aspx?departingterm=7&arrivingterm=3&roundtrip=true]]></string>
+    <!-- port/cam 1 meaning leaving seattle -->
+    <!-- 
+    alternatively for parking lot in seattle side
+    http://images.wsdot.wa.gov/wsf/colman/BainHold/BainHold.jpg
+    -->
+    <string name="hardcoded_bainbridge_to_seattle_ferry_cam_1_url"><![CDATA[http://206.63.218.7/axis-cgi/jpg/image.cgi?resolutiuon=CIF&camera=3]]></string>
+    <string name="hardcoded_bainbridge_to_seattle_ferry_cam_2_url"><![CDATA[http://206.63.218.8/axis-cgi/jpg/image.cgi?resolutiuon=CIF&camera=1]]></string>
+    <string name="hardcoded_bainbridge_to_seattle_vessel_watch_url"><![CDATA[http://www.wsdot.wa.gov/ferries/vesselwatch/mobile.aspx?view=seabi&size=S]]></string>
+    <string name="hardcoded_bainbridge_to_seattle_port_1">Leaving Seattle</string>
+    <string name="hardcoded_bainbridge_to_seattle_port_2">Leaving Bainbridge Island</string>
+    <string name="hardcoded_bainbridge_to_seattle_regex"><![CDATA[(?:>(\\d?\\d:\\d\\d)</td>|(?:<td(?:.)*strong>(\\w+)</strong)|(?:<a(?:.)*vessel(?:.)*>((?:\\s|\\w)+)</a>)|([Mm]idnight|[Nn]oon))]]></string>
+    <string name="hardcoded_bainbridge_to_seattle_regex_bulletin"><![CDATA[[Bb]ainbridge|[Aa]ll\s[rR]outes?]]></string>
+    <string name="hardcoded_bainbridge_to_seattle_port_1_lat"><![CDATA[47.602344]]></string>
+    <string name="hardcoded_bainbridge_to_seattle_port_1_long"><![CDATA[-122.338257]]></string>
+    <string name="hardcoded_bainbridge_to_seattle_port_2_lat"><![CDATA[47.6428744]]></string>
+    <string name="hardcoded_bainbridge_to_seattle_port_2_long"><![CDATA[-122.5423578]]></string>
+    
+    
+    <!-- Bremerton/Seattle -->
+    <string name="hardcoded_bremerton_to_seattle_schedule_url"><![CDATA[http://www.wsdot.wa.gov/Ferries/Schedule/ScheduleDetail.aspx?departingterm=4&arrivingterm=7&roundtrip=true]]></string>
+    <string name="hardcoded_bremerton_to_seattle_ferry_cam_1_url"><![CDATA[http://206.63.218.7/axis-cgi/jpg/image.cgi?resolutiuon=CIF&camera=2]]></string>
+    <string name="hardcoded_bremerton_to_seattle_ferry_cam_2_url"><![CDATA[http://images.wsdot.wa.gov/wsf/bremerton/holding/holding.jpg]]></string>
+    <string name="hardcoded_bremerton_to_seattle_vessel_watch_url"><![CDATA[http://www.wsdot.wa.gov/ferries/vesselwatch/mobile.aspx?view=seabi&size=S]]></string>
+    <string name="hardcoded_bremerton_to_seattle_port_1">Leaving Seattle</string>
+    <string name="hardcoded_bremerton_to_seattle_port_2">Leaving Bremerton</string>
+    <string name="hardcoded_bremerton_to_seattle_regex"><![CDATA[(?:>(\\d?\\d:\\d\\d)</td>|(?:<td(?:.)*strong>(\\w+)</strong)|(?:<a(?:.)*vessel(?:.)*>((?:\\s|\\w)+)</a>)|([Mm]idnight|[Nn]oon))]]></string>
+    <string name="hardcoded_bremerton_to_seattle_regex_bulletin"><![CDATA[[Bb]remerton|[Aa]ll\s[rR]outes?]]></string>
+    
+    <!-- 47.602344,-122.338257 -->
+    <string name="hardcoded_bremerton_to_seattle_port_1_lat"><![CDATA[47.602344]]></string>
+    <string name="hardcoded_bremerton_to_seattle_port_1_long"><![CDATA[-122.338257]]></string>
+    <!-- 47.563496,-122.628107 -->
+    <string name="hardcoded_bremerton_to_seattle_port_2_lat"><![CDATA[47.563496]]></string>
+    <string name="hardcoded_bremerton_to_seattle_port_2_long"><![CDATA[-122.628107]]></string>
 
+    
+    <!-- Vashon Island/Seattle PASSENGER-ONLY -->
+    <!-- not officially supported since custom code, lack of url's etc... ? -->
+    <!-- note: requires a different regex + and diff/custom parser fxn -->
+    <string name="hardcoded_vashon_to_seattle_schedule_url"><![CDATA[http://www.kingcounty.gov/transportation/kcdot/WaterTaxi/VashonRoute/Schedule.aspx]]></string>
+    <string name="hardcoded_vashon_to_seattle_ferry_cam_1_url"><![CDATA[http://images.wsdot.wa.gov/wsf/vashon//VSHvc00001.jpg]]></string>
+    <string name="hardcoded_vashon_to_seattle_ferry_cam_2_url"><![CDATA[http://images.wsdot.wa.gov/wsf/vashon//VSHvc00004.jpg]]></string>
+    <!-- technically there is no official vessel watch for the passenger only -->
+    <string name="hardcoded_vashon_to_seattle_vessel_watch_url"><![CDATA[http://www.wsdot.wa.gov/ferries/vesselwatch/mobile.aspx?view=seabi&size=S]]></string>
+    <string name="hardcoded_vashon_to_seattle_port_1">Leaving Seattle</string>
+    <string name="hardcoded_vashon_to_seattle_port_2">Leaving Vashon Island</string>
+    <string name="hardcoded_vashon_to_seattle_regex"><![CDATA[(?:>)(\\d?\\d:\\d\\d\\s\\w\\.\\w\\.)]]></string>
+    <!-- port 1 = leaving seattle, port 2 = leaving vashon island -->
+    <string name="hardcoded_vashon_to_seattle_port_1_lat"><![CDATA[47.602344]]></string>
+    <string name="hardcoded_vashon_to_seattle_port_1_long"><![CDATA[-122.338257]]></string>
+    <string name="hardcoded_vashon_to_seattle_port_2_lat"><![CDATA[47.507693]]></string>
+    <string name="hardcoded_vashon_to_seattle_port_2_long"><![CDATA[-122.464771]]></string>
+    
+    <!-- Vashon Island/Fauntleroy (WSDOT)-->
+    <string name="hardcoded_vashon_to_fauntleroy_schedule_url"><![CDATA[http://www.wsdot.wa.gov/Ferries/Schedule/ScheduleDetail.aspx?tripdate=20101119&departingterm=22&arrivingterm=9&roundtrip=true]]></string>
+    <!--
+    ..vashon island ferry cams..
+    http://images.wsdot.wa.gov/wsf/vashon//VSHvc00001.jpg
+    http://images.wsdot.wa.gov/wsf/vashon//VSHvc00002.jpg
+    http://images.wsdot.wa.gov/wsf/vashon//VSHvc00003.jpg
+    http://images.wsdot.wa.gov/wsf/vashon//VSHvc00004.jpg
+    -->
+    <string name="hardcoded_vashon_to_fauntleroy_ferry_cam_1_url"><![CDATA[http://images.wsdot.wa.gov/wsf/vashon//VSHvc00001.jpg]]></string>
+    <string name="hardcoded_vashon_to_fauntleroy_ferry_cam_2_url"><![CDATA[http://images.wsdot.wa.gov/wsf/vashon//VSHvc00004.jpg]]></string>
+    <string name="hardcoded_vashon_to_fauntleroy_vessel_watch_url"><![CDATA[http://www.wsdot.wa.gov/ferries/vesselwatch/mobile.aspx?view=seabi&size=S]]></string>
+    <string name="hardcoded_vashon_to_fauntleroy_port_1">Leaving Vashon Island</string>
+    <string name="hardcoded_vashon_to_fauntleroy_port_2">Leaving Fauntleroy</string>
+    <string name="hardcoded_vashon_to_fauntleroy_regex"><![CDATA[(?:>(\\d?\\d:\\d\\d)</td>|(?:<td(?:.)*strong>(\\w+)</strong)|(?:<a(?:.)*vessel(?:.)*>(\\w+)</a>)|([Mm]idnight|[Nn]oon))]]></string>
+    <!-- port 1 = leaving vashon, port2 = leaving fauntleroy -->
+    <string name="hardcoded_vashon_to_fauntleroy_port_1_lat"><![CDATA[47.507693]]></string>
+    <string name="hardcoded_vashon_to_fauntleroy_port_1_long"><![CDATA[-122.464771]]></string>
+    <string name="hardcoded_vashon_to_fauntleroy_port_2_lat"><![CDATA[47.523577]]></string>
+    <string name="hardcoded_vashon_to_fauntleroy_port_2_long"><![CDATA[-122.393017]]></string>
+    
+    
+    <!--
+    #
+    #..Edmonds/Kingston..
+    #
+    -->
+    <string name="hardcoded_edmonds_to_kingston_schedule_url"><![CDATA[http://www.wsdot.wa.gov/Ferries/Schedule/ScheduleDetail.aspx?&departingterm=8&arrivingterm=12&roundtrip=true]]></string>
+    <string name="hardcoded_edmonds_to_kingston_ferry_cam_1_url"><![CDATA[http://images.wsdot.wa.gov/wsf/edmonds/vessel.jpg]]></string>
+    <string name="hardcoded_edmonds_to_kingston_ferry_cam_2_url"><![CDATA[http://images.wsdot.wa.gov/wsf/kingston/terminal/kingston.jpg]]></string>
+    <string name="hardcoded_edmonds_to_kingston_vessel_watch_url"><![CDATA[http://www.wsdot.wa.gov/ferries/vesselwatch/mobile.aspx?view=edking&size=S]]></string>
+    <string name="hardcoded_edmonds_to_kingston_port_1">Leaving Edmonds</string>
+    <string name="hardcoded_edmonds_to_kingston_port_2">Leaving Kingston</string>
+    <string name="hardcoded_edmonds_to_kingston_regex"><![CDATA[(?:>(\\d?\\d:\\d\\d)</td>|(?:<td(?:.)*strong>(\\w+)</strong)|(?:<a(?:.)*vessel(?:.)*>((?:\\s|\\w)+)</a>)|([Mm]idnight|[Nn]oon))]]></string>
+    <string name="hardcoded_edmonds_to_kingston_regex_bulletin"><![CDATA[[Ee]dmonds|[Kk]ingston|[Aa]ll\s[rR]outes?]]></string>
+    
+    <string name="hardcoded_edmonds_to_kingston_port_1_lat"><![CDATA[47.812636]]></string>
+    <string name="hardcoded_edmonds_to_kingston_port_1_long"><![CDATA[-122.383232]]></string>
+    <string name="hardcoded_edmonds_to_kingston_port_2_lat"><![CDATA[47.796552]]></string>
+    <string name="hardcoded_edmonds_to_kingston_port_2_long"><![CDATA[-122.496529]]></string>
 </resources>
+

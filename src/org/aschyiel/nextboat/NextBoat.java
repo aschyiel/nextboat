@@ -21,7 +21,7 @@
 package org.aschyiel.nextboat;
 
 import org.aschyiel.nextboat.DeparturesList;
-import org.aschyiel.nextboat.DownloadWebPage;
+import org.aschyiel.nextboat.Downloader;
 import org.aschyiel.nextboat.Ferry;
 
 import android.app.Activity;
@@ -35,6 +35,7 @@ import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationManager;
+import android.text.TextUtils;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -142,12 +143,31 @@ public class NextBoat extends Activity
     _options = new OptionsMenu();
     _sextant = new Sextant();
     
-    //..init..
     _destination = _destinationA;
     
     _initView();
   }
 
+  @Override
+  protected void onResume()
+  {
+    super.onResume();
+
+    // Note: onResume() gets called immediately after onCreate().
+    
+    _updateView();
+    
+    if ( isDownloadNeeded() )
+    {
+      _download();
+      return;
+    }
+    
+  }
+
+  /**
+  * The user clicked on the "menu" button on their android device.
+  */
   @Override
   public boolean onCreateOptionsMenu( Menu menu )
   {
@@ -164,26 +184,6 @@ public class NextBoat extends Activity
     boolean b = _options.onOptionsItemSelected( this, item );
     return ( b )?
         b : super.onOptionsItemSelected( item );
-  }
-
-  //..note: onResume() gets called immediately after onCreate..
-  @Override
-  protected void onResume()
-  {
-    super.onResume();
-    
-    _setupView();
-    
-    if ( isDownloadNeeded() )
-    {
-      refreshFxn();
-      return;
-    }
-    
-    handleAutoLocation();
-    textView.setText( getNextFerry() );
-    setLastCheckedFxn();
-    readFerryBulletin();
   }
 
   /**
@@ -216,7 +216,7 @@ public class NextBoat extends Activity
   */
   public String getDeparturesScheduleAsCsv()
   {
-    return android.text.TextUtils.join( ',', mFerryArray );
+    return TextUtils.join( ',', mFerryArray );
   }
 
   /**
@@ -275,6 +275,18 @@ public class NextBoat extends Activity
     // TODO
   }
 
+  /**
+  * Write our ferry schedule to the database, and refresh our view.
+  * Gets called after completing our download.
+  *
+  * @param (String) webContent is the html-text we just donwloaded.
+  * @return void
+  */
+  public void scheduleDownloadHandler( String webContent )
+  {
+    // TODO
+  }
+
   //---------------------------------
   //
   // Private Methods
@@ -295,25 +307,6 @@ public class NextBoat extends Activity
 
   private void setNextBoatDestinationText()
   {
-  }
-
-  private void refreshFxn()
-  {
-    if ( isDownloadNeeded() )
-    {
-      _download();
-    }
-    
-    handleAutoLocation();
-    
-    //..and re-read our file..
-    initNextFerry();
-
-    //..actual refresh part..
-    textView.setText( getNextFerry() );
-    setNextBoatDestinationText();
-    setLastCheckedFxn();
-    readFerryBulletin();
   }
 
   /**
@@ -375,22 +368,21 @@ public class NextBoat extends Activity
         _options.showVesselWatch( this );
       }
     });
-
-    _setupView();
   }
    
   /**
-  * Re-configure the view;
+  * Update what's being displayed on the main view;
   * To be called after the view has been initialized.
   *
   * ie. The app has resumed, etc.
   */
-  private void _setupView()
+  private void _updateView()
   {
     _setupTextColour();
     _setupBackgroundColour();
 
     textViewLabel.setText(  "Next Boat : \n" + _destination );
+    textView.setText( getNextFerry() );
   }
 
   /**
@@ -428,7 +420,7 @@ public class NextBoat extends Activity
       return;
     }
 
-    DownloadWebPage downloader = new DownloadWebPage( this, mFerryScheduleUrl, whichFile() );
+    Downloader downloader = new Downloader( this, mFerryScheduleUrl, "scheduleDownloadHandler" );
     downloader.start();
   }
 

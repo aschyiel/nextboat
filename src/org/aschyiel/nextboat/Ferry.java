@@ -36,7 +36,6 @@ public class Ferry
   /** @constructor */
   public Ferry()
   {
-    //..set to now..
     _calendar = Calendar.getInstance();
   }
 
@@ -64,6 +63,21 @@ public class Ferry
   public void setTime( String time )
   {
     this._time = time;
+
+    //
+    // Update our internal calendar to reflect the HH:MM time.
+    //
+
+    int splitIndex = time.indexOf( ":" );
+    int hour = Integer.parseInt( time.substring( 0, splitIndex ) );
+    if (hour > 11)
+    {
+      hour = 0;
+    }
+    _calendar.set( Calendar.HOUR, hour );
+    
+    _calendar.set( Calendar.MINUTE,
+        Integer.parseInt( time.substring( splitIndex + 1, time.length() ) ) );
   }
 
   /**
@@ -135,6 +149,8 @@ public class Ferry
   public void setAmPm( String amPm )
   {
     this._amPm = amPm;
+    _calendar.set( Calendar.AM_PM,
+        ( amPm.equals( "AM" ) )? 0 : 1 );
   }
 
   /**
@@ -233,92 +249,24 @@ public class Ferry
   private Boolean _isWeekday = null;
 
   public static final String TAG = "Ferry";
+
+  /**
+  * This ferry's internal calendar, gets updated based on the other
+  * time-related setters.
+  *
+  * @private
+  */
   private Calendar _calendar;
+
   private String _boat = "?";
   private String mExtra = "";
   private Boolean mNull = false;
-  
-  public void setDate( Date pDate )
-  {
-    _calendar.setCalendar( pDate );
-  }
-
-  public void setCalendar( Calendar pCal )
-  {
-    _calendar = pCal;
-  }
-
-
-  public Calendar getCalendar()
-  {
-    return _calendar;
-  }
-
-  public void setExtra( String pExtra )
-  {
-    mExtra = pExtra;
-  }
-
-  private void setCalendarDay( int pDayOfYear )
-  {
-    _calendar.set( Calendar.DAY_OF_YEAR, pDayOfYear );
-  }
- 
-
-
 
   //---------------------------------
   //
   // Public Methods.
   //
   //---------------------------------
-
-  //
-  //..a convenience function..
-  //
-  //..see http://developer.android.com/reference/java/util/Calendar.html
-  //..http://developer.android.com/reference/java/util/Date.html
-  public void setCalendar( String pHHMM, String paa, Boolean pNextDay )
-  {
-      int AM_or_PM = 0;   //..0 is AM..
-      if (!paa.equals("AM"))
-      {
-          AM_or_PM = 1;   //..1 is PM..
-      }
-      //pHHMM might be 1:23 or 12:34
-      Calendar cal = Calendar.getInstance(); 
-      
-      if ( pNextDay )
-      {
-          cal.set( 
-              Calendar.DAY_OF_YEAR,
-              ( cal.get( Calendar.DAY_OF_YEAR ) + 1 ) );
-      }
-      
-      int indexColon = pHHMM.indexOf(":");
-      int hour = Integer.parseInt( pHHMM.substring(0, indexColon) );
-      if (hour > 11)
-      {
-          hour = 0;
-      }
-      
-      cal.set(
-          Calendar.HOUR ,
-          hour );  
-      
-      
-      cal.set(
-          Calendar.MINUTE ,
-          Integer.parseInt( pHHMM.substring( indexColon + 1, pHHMM.length() ) ) );
-      
-      cal.set(
-          Calendar.AM_PM ,
-          AM_or_PM );        
-      
-      setCalendar( cal );
-      
-      setCalendarDay( cal.get( Calendar.DAY_OF_YEAR ) );
-  }
   
   public String getBoat()
   {

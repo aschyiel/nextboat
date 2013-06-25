@@ -45,9 +45,9 @@ public class FerryBulletin
 
     public void download()
     {
-        DownloadWebPage zDownloadWebPage = 
-                new DownloadWebPage( mContext, BULLETIN_URL, getBulletinFile() );
-        zDownloadWebPage.start();
+        Downloader zDownloader = 
+                new Downloader( mContext, BULLETIN_URL, getBulletinFile() );
+        zDownloader.start();
     }
     
     private static File getBulletinFile()
@@ -80,7 +80,7 @@ public class FerryBulletin
     
     public static String readBulletin( String pRegex )
     {
-        String htmlString = DownloadWebPage.ReadFile( getBulletinFile() );
+        //String htmlString = Downloader.ReadFile( getBulletinFile() );
         
         if (htmlString.length() < 15)
         {
