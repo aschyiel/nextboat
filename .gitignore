@@ -1,0 +1,13 @@
+
+README.md
+ant.properties
+bin/
+build.xml
+gen/
+local.properties
+nextboat-read-only/
+nextboat.sublime-project
+nextboat.sublime-workspace
+proguard-project.txt
+project.properties
+
