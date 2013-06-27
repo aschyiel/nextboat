@@ -2,4 +2,4 @@ nextboat is an open-source WSDOT ferry app that I originally created for myself 
 
 nextboat was/is heavily influenced by WSDOT, Next Manly Ferry, Ferry Flee and Next Manly Ferry.
 
-see https://play.google.com/store/apps/details?id=com.googlecode.nextboat&hl=en
+see https://play.google.com/store/apps/details?id=org.aschyiel.nextboat
