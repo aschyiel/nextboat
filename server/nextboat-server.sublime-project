@@ -4,5 +4,8 @@
 		{
 			"path": "/home/uli/code/uli.d/nextboat/server"
 		}
-	]
+	],
+
+	"tab_size": 2,
+	"translate_tabs_to_spaces": true
 }
