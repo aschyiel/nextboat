@@ -3,15 +3,14 @@
 /*jshint supernew:true, undef: true, node:true, laxcomma:true */
 
 /**
-* Returns JSON representing the ferry schedule
-* going from-bainbridge-to-seattle.
+* Leaving Seattle, Going to Bainbridge.
 */
 
 var router      = require( 'express' ).Router()
   , WsdotHelper = require( './wsdot_helper' )
   , charon = new WsdotHelper(
-    { url:   'http://www.wsdot.wa.gov/Ferries/Schedule/ScheduleDetail.aspx?departingterm=3&arrivingterm=7'
-    , title: 'Leaving Bainbridge Island'
+    { url:   'http://www.wsdot.wa.gov/Ferries/Schedule/ScheduleDetail.aspx?departingterm=7&arrivingterm=3'
+    , title: 'Leaving Seattle'
     });
 module.exports = router;
 
