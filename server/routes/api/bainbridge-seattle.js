@@ -9,13 +9,15 @@
 
 var router      = require( 'express' ).Router()
   , WsdotHelper = require( './wsdot_helper' )
-  , charon = new WsdotHelper(
-    { url:   'http://www.wsdot.wa.gov/Ferries/Schedule/ScheduleDetail.aspx?departingterm=3&arrivingterm=7'
-    , title: 'Leaving Bainbridge Island'
-    });
+  ;
 module.exports = router;
 
-router.get( '/', function( ___, res ) {
+router.get( '/', function( req, res ) {
+  var charon = new WsdotHelper(
+    { url:   'http://www.wsdot.wa.gov/Ferries/Schedule/ScheduleDetail.aspx?departingterm=3&arrivingterm=7'
+    , title: 'Leaving Bainbridge Island'
+    , week:  req.query.week
+    });
   charon.fetch( function( schedule ) {
         res.json( schedule );
       });
